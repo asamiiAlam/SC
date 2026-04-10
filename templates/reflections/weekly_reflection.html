@@ -1,0 +1,659 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Weekly Reflection — Stress Coach{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ─── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --ink:        #1a1f1a;
+    --ink-muted:  #5e6e5e;
+    --ink-faint:  #9eae9e;
+    --surface:    #f2f0eb;
+    --surface-2:  #e8e4dc;
+    --card:       #ffffff;
+    --border:     rgba(30,40,30,.09);
+    --border-md:  rgba(30,40,30,.15);
+
+    --accent:     #3a5c3b;
+    --accent-lt:  #dff0df;
+    --accent-dim: rgba(58,92,59,.13);
+
+    --low:        #2e7d5a;
+    --low-lt:     #d8f2e8;
+    --low-border: rgba(46,125,90,.20);
+    --mod:        #b06b1a;
+    --mod-lt:     #faebd4;
+    --mod-border: rgba(176,107,26,.20);
+    --high:       #b03a2e;
+    --high-lt:    #fde0dd;
+    --high-border:rgba(176,58,46,.20);
+
+    /* per-stat-card tints */
+    --c-stress-bg:  #fff0ee;  --c-stress-bdr: rgba(176,58,46,.18);  --c-stress-val: #b03a2e; --c-stress-lbl:#c06052;
+    --c-study-bg:   #eaf4ff;  --c-study-bdr:  rgba(37,99,175,.18);  --c-study-val:  #2563af; --c-study-lbl: #3a70b8;
+    --c-checkin-bg: #e8f7ef;  --c-checkin-bdr:rgba(46,125,90,.18);  --c-checkin-val:#2e7d5a; --c-checkin-lbl:#28825a;
+    --c-dead-bg:    #fff8e8;  --c-dead-bdr:   rgba(176,107,26,.18); --c-dead-val:   #b06b1a; --c-dead-lbl:  #9a6018;
+
+    --radius:     18px;
+    --shadow-sm:  0 1px 4px rgba(30,40,30,.07);
+    --shadow:     0 3px 20px rgba(30,40,30,.09);
+    --shadow-lg:  0 8px 40px rgba(30,40,30,.13);
+    --ease:       cubic-bezier(.22,.68,0,1.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 14.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+    opacity: .45;
+  }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 8rem 1.75rem 5rem; }
+
+  /* ─── WEEK HEADER ────────────────────────────────────────── */
+  .week-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;
+    padding-bottom: 1.75rem; border-bottom: 1px solid var(--border);
+    animation: fadeUp .5s var(--ease) both;
+  }
+  .week-title h1 {
+    font-family: 'Lora', serif;
+    font-size: 2.6rem; font-weight: 400; color: var(--ink);
+    line-height: 1.1; letter-spacing: -.02em;
+  }
+  .week-title span { font-size: 13px; color: var(--ink-muted); margin-top: 5px; display: block; }
+  .week-nav { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .week-nav a {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 18px; border: 1px solid var(--border-md); border-radius: 999px;
+    font-size: 13px; font-weight: 500; color: var(--ink-muted);
+    text-decoration: none; background: var(--card);
+    transition: all .22s var(--ease); box-shadow: var(--shadow-sm);
+  }
+  .week-nav a:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .week-nav a.disabled { opacity: .35; pointer-events: none; }
+
+  /* ─── MESSAGES ───────────────────────────────────────────── */
+  .messages { margin-bottom: 1.5rem; }
+  .msg {
+    padding: 11px 18px; border-radius: 10px; font-size: 13.5px; margin-bottom: .5rem;
+    background: var(--low-lt); color: var(--low); border-left: 3px solid var(--low); font-weight: 500;
+  }
+
+  /* ─── GRIDS ──────────────────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  @media (max-width: 800px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ─── STAT CARDS ─────────────────────────────────────────── */
+  .stat-card {
+    border-radius: var(--radius); padding: 1.5rem 1.4rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform .22s var(--ease), box-shadow .22s;
+    animation: fadeUp .5s var(--ease) both;
+    position: relative; overflow: hidden;
+    border: 1.5px solid transparent;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: -28px; right: -28px;
+    width: 90px; height: 90px; border-radius: 50%; opacity: .18;
+  }
+  .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+  .stat-card:nth-child(1) { background: var(--c-stress-bg); border-color: var(--c-stress-bdr); animation-delay: .05s; }
+  .stat-card:nth-child(1)::before { background: var(--c-stress-val); }
+  .stat-card:nth-child(1) .stat-value { color: var(--c-stress-val); }
+  .stat-card:nth-child(1) .stat-label { color: var(--c-stress-lbl); }
+
+  .stat-card:nth-child(2) { background: var(--c-study-bg); border-color: var(--c-study-bdr); animation-delay: .10s; }
+  .stat-card:nth-child(2)::before { background: var(--c-study-val); }
+  .stat-card:nth-child(2) .stat-value { color: var(--c-study-val); }
+  .stat-card:nth-child(2) .stat-label { color: var(--c-study-lbl); }
+
+  .stat-card:nth-child(3) { background: var(--c-checkin-bg); border-color: var(--c-checkin-bdr); animation-delay: .15s; }
+  .stat-card:nth-child(3)::before { background: var(--c-checkin-val); }
+  .stat-card:nth-child(3) .stat-value { color: var(--c-checkin-val); }
+  .stat-card:nth-child(3) .stat-label { color: var(--c-checkin-lbl); }
+
+  .stat-card:nth-child(4) { background: var(--c-dead-bg); border-color: var(--c-dead-bdr); animation-delay: .20s; }
+  .stat-card:nth-child(4)::before { background: var(--c-dead-val); }
+  .stat-card:nth-child(4) .stat-value { color: var(--c-dead-val); }
+  .stat-card:nth-child(4) .stat-label { color: var(--c-dead-lbl); }
+
+  .stat-label { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .6rem; }
+  .stat-value { font-family: 'Lora', serif; font-size: 2.7rem; line-height: 1; margin-bottom: .25rem; }
+  .stat-sub   { font-size: 11.5px; color: var(--ink-muted); }
+
+  /* ─── SECTION HEADING ────────────────────────────────────── */
+  .section-heading {
+    display: flex; align-items: center; gap: .75rem;
+    font-size: 11px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-faint);
+    margin: 2.25rem 0 1.1rem;
+  }
+  .section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ─── GENERIC CARD ───────────────────────────────────────── */
+  .card {
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border); padding: 1.6rem;
+    box-shadow: var(--shadow); animation: fadeUp .5s var(--ease) both;
+    background: var(--card);
+  }
+  .card-stress   { background: linear-gradient(150deg, #fff5f4 0%, #ffffff 38%); border-color: var(--high-border); }
+  .card-study    { background: linear-gradient(150deg, #eef5ff 0%, #ffffff 38%); border-color: rgba(37,99,175,.15); }
+  .card-checkins { background: linear-gradient(150deg, #edfaf3 0%, #ffffff 38%); border-color: var(--low-border); }
+  .card-deadlines{ background: linear-gradient(150deg, #fffbf0 0%, #ffffff 38%); border-color: var(--mod-border); }
+  .card-summary  { background: linear-gradient(150deg, #f5f1ff 0%, #ffffff 42%); border-color: rgba(108,82,196,.14); }
+
+  .card-label {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 1.1rem;
+  }
+
+  /* ─── CHARTS ─────────────────────────────────────────────── */
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ─── CHECK-IN ITEMS ─────────────────────────────────────── */
+  .checkin-item {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1rem 0; border-bottom: 1px solid var(--border);
+  }
+  .checkin-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .checkin-item:first-child { padding-top: 0; }
+  .checkin-date { min-width: 38px; text-align: center; font-size: 11px; color: var(--ink-faint); font-weight: 600; line-height: 1.3; padding-top: 3px; letter-spacing: .03em; }
+  .checkin-date b { font-size: 15px; color: var(--ink-muted); display: block; }
+  .stress-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 38px; height: 38px; border-radius: 10px; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .stress-low  { background: var(--low-lt);  color: var(--low);  border: 1.5px solid var(--low-border); }
+  .stress-med  { background: var(--mod-lt);  color: var(--mod);  border: 1.5px solid var(--mod-border); }
+  .stress-high { background: var(--high-lt); color: var(--high); border: 1.5px solid var(--high-border); }
+  .checkin-text p     { font-size: 13.5px; color: var(--ink); line-height: 1.55; }
+  .checkin-text small { font-size: 12px; color: var(--ink-muted); margin-top: 3px; display: block; }
+
+  /* ─── DEADLINE PILLS ─────────────────────────────────────── */
+  .deadline-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--high-lt); color: var(--high);
+    border-radius: 999px; padding: 5px 13px;
+    font-size: 12px; font-weight: 600; margin: 3px;
+    border: 1.5px solid var(--high-border);
+  }
+  .deadline-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--high); flex-shrink: 0; }
+
+  /* ─── CONFIDENCE DISPLAY ─────────────────────────────────── */
+  .confidence-display { font-size: 1.65rem; font-family: 'Lora', serif; text-transform: capitalize; color: var(--accent); margin-top: .3rem; }
+
+  /* ─── EMPTY ──────────────────────────────────────────────── */
+  .empty { text-align: center; padding: 2.5rem 2rem; color: var(--ink-muted); font-size: 14px; }
+  .empty-icon { font-size: 2.2rem; margin-bottom: .75rem; opacity: .6; }
+
+  /* ─── SUMMARY FORM ───────────────────────────────────────── */
+  .summary-form textarea {
+    width: 100%; min-height: 115px;
+    border: 1.5px solid rgba(108,82,196,.2); border-radius: 12px;
+    padding: 1rem 1.1rem; font-family: inherit; font-size: 14px;
+    color: var(--ink); background: rgba(245,241,255,.55); resize: vertical;
+    outline: none; transition: border-color .2s, background .2s; line-height: 1.65;
+  }
+  .summary-form textarea:focus { border-color: #7c5cbf; background: #fff; box-shadow: 0 0 0 3px rgba(124,92,191,.10); }
+
+  /* ─── BUTTONS ────────────────────────────────────────────── */
+  .btn-row { display: flex; gap: .75rem; margin-top: .9rem; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 22px; border-radius: 999px; font-family: inherit;
+    font-size: 13.5px; font-weight: 600; cursor: pointer;
+    border: none; transition: all .22s var(--ease); text-decoration: none;
+  }
+  .btn-ai { background: linear-gradient(135deg, #5c4bbf 0%, #3a7c6a 100%); color: #fff; box-shadow: 0 4px 18px rgba(92,75,191,.28); }
+  .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(92,75,191,.38); filter: brightness(1.06); }
+  .btn-outline { background: var(--card); color: var(--ink-muted); border: 1.5px solid var(--border-md); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); transform: translateY(-1px); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; }
+
+  /* ─── ML PANEL ───────────────────────────────────────────── */
+  .ml-panel { border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--border); box-shadow: var(--shadow-lg); animation: fadeUp .5s var(--ease) both; }
+  .ml-header { padding: 1.5rem 1.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .ml-header-low      { background: linear-gradient(135deg, #c8eedd, #e8f8f0); }
+  .ml-header-moderate { background: linear-gradient(135deg, #fdddb8, #fef5e7); }
+  .ml-header-high     { background: linear-gradient(135deg, #fac8c4, #fdecea); }
+  .ml-header-inner-label { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: .35rem; }
+  .burnout-badge { font-family: 'Lora', serif; font-size: 1.6rem; font-weight: 400; }
+  .burnout-low      { color: var(--low); }
+  .burnout-moderate { color: var(--mod); }
+  .burnout-high     { color: var(--high); }
+  .ml-meta-group { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .trend-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+  .trend-improving { background: var(--low-lt);  color: var(--low);  border: 1.5px solid var(--low-border); }
+  .trend-stable    { background: var(--accent-lt); color: var(--accent); border: 1.5px solid var(--accent-dim); }
+  .trend-worsening { background: var(--high-lt); color: var(--high); border: 1.5px solid var(--high-border); }
+  .ml-wellness-num { font-family: 'Lora', serif; font-size: 1.6rem; color: var(--ink); }
+  .ml-body { background: var(--card); padding: 1.75rem; }
+
+  /* ─── SCORE BARS ─────────────────────────────────────────── */
+  .score-bar-wrap { margin-bottom: 1.4rem; }
+  .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; font-weight: 500; }
+  .score-bar-track { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+  .score-bar-fill  { height: 100%; border-radius: 99px; transition: width .8s var(--ease); }
+  .fill-low    { background: linear-gradient(90deg, #2e7d5a, #48c48a); }
+  .fill-mod    { background: linear-gradient(90deg, #b06b1a, #e8a040); }
+  .fill-high   { background: linear-gradient(90deg, #b03a2e, #e06050); }
+  .fill-accent { background: linear-gradient(90deg, #3a5c3b, #5caa60); }
+
+  /* ─── RECOMMENDATION ─────────────────────────────────────── */
+  .recommendation {
+    background: linear-gradient(135deg, #f4f1ff, #eef8f2);
+    border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0;
+    padding: 1.1rem 1.3rem; font-size: 14px; line-height: 1.75;
+    color: var(--ink); margin: 1.25rem 0; font-style: italic;
+    border: 1.5px solid rgba(58,92,59,.12); border-left-width: 3px;
+  }
+
+  /* ─── FOCUS LIST ─────────────────────────────────────────── */
+  .focus-list { list-style: none; display: flex; flex-direction: column; gap: .55rem; }
+  .focus-item { display: flex; align-items: flex-start; gap: .85rem; font-size: 14px; color: var(--ink); }
+  .focus-num {
+    width: 23px; height: 23px; border-radius: 50%;
+    background: var(--accent-lt); color: var(--accent); font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+    border: 1.5px solid rgba(58,92,59,.2);
+  }
+
+  /* ─── ML META ────────────────────────────────────────────── */
+  .ml-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+  .ml-meta-item { background: var(--surface); border-radius: 12px; padding: 1rem 1.1rem; border: 1px solid var(--border); }
+  .ml-meta-label { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+  .ml-meta-value { font-size: 1.4rem; font-family: 'Lora', serif; color: var(--ink); }
+
+  /* ─── HISTORY CARDS ──────────────────────────────────────── */
+  .history-card {
+    background: var(--card); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 1.1rem 1.25rem; font-size: 13px;
+    text-decoration: none; display: block;
+    transition: all .22s var(--ease); box-shadow: var(--shadow-sm);
+  }
+  .history-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow); }
+  .history-week { color: var(--ink-faint); font-size: 11px; margin-bottom: .4rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .history-risk { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 5px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-low  { background: var(--low); }
+  .dot-mod  { background: var(--mod); }
+  .dot-high { background: var(--high); }
+
+  /* ─── LOADING ────────────────────────────────────────────── */
+  .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(242,240,235,.82); backdrop-filter: blur(6px); z-index: 9998; align-items: center; justify-content: center; flex-direction: column; gap: 1.1rem; }
+  .loading-overlay.active { display: flex; }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border-md); border-top-color: var(--accent); border-radius: 50%; animation: spin .75s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; color: var(--ink-muted); font-weight: 500; }
+
+  /* ─── NO AI ──────────────────────────────────────────────── */
+  .no-ai-card { text-align: center; padding: 3rem 2rem; background: linear-gradient(135deg, #f5f2ff 0%, #eef7f2 100%); border-color: rgba(100,80,180,.14); }
+  .no-ai-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}
+
+{% block extra_js_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p class="loading-text">Running AI analysis&hellip;</p>
+</div>
+
+<div class="page">
+
+  {% if messages %}
+  <div class="messages">
+    {% for msg in messages %}
+    <div class="msg">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="week-header">
+    <div class="week-title">
+      <h1>Weekly Reflection</h1>
+      <span>{{ week_start|date:"N j" }} – {{ week_end|date:"N j, Y" }}</span>
+    </div>
+    <div class="week-nav">
+      <a href="{% url 'reflections:weekly_reflection_offset' prev_offset %}">&#8592; Prev week</a>
+      {% if not is_current_week %}
+        <a href="{% url 'reflections:weekly_reflection' %}">This week</a>
+      {% else %}
+        <a class="disabled">This week</a>
+      {% endif %}
+      {% if not is_current_week %}
+        <a href="{% url 'reflections:weekly_reflection_offset' next_offset %}">Next week &#8594;</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="grid-4" style="margin-bottom:2rem;">
+    <div class="stat-card">
+      <div class="stat-label">Avg Stress</div>
+      <div class="stat-value">{{ reflection.avg_stress_level|floatformat:0 }}</div>
+      <div class="stat-sub">out of 100</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Study</div>
+      <div class="stat-value">{{ reflection.avg_study_hours|floatformat:1 }}</div>
+      <div class="stat-sub">hours / day</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Check-ins</div>
+      <div class="stat-value">{{ reflection.completed_checkins }}</div>
+      <div class="stat-sub">out of 7 days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Deadlines</div>
+      <div class="stat-value">{{ reflection.total_deadlines }}</div>
+      <div class="stat-sub">this week</div>
+    </div>
+  </div>
+
+  <!-- DAILY BREAKDOWN -->
+  <div class="section-heading">Daily breakdown</div>
+  <div class="grid-2">
+    <div class="card card-stress">
+      <div class="card-label">Stress level — daily</div>
+      <div class="chart-wrap"><canvas id="stressChart"></canvas></div>
+    </div>
+    <div class="card card-study">
+      <div class="card-label">Study hours — daily</div>
+      <div class="chart-wrap"><canvas id="studyChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- CHECK-INS -->
+  <div class="section-heading">Check-ins this week</div>
+  <div class="grid-2">
+    <div class="card card-checkins">
+      <div class="card-label">Daily check-ins</div>
+      {% if checkins %}
+        {% for c in checkins %}
+        {% with s=c.stress_level %}
+        <div class="checkin-item">
+          <div class="checkin-date">{{ c.created_at|date:"D" }}<br><b>{{ c.created_at|date:"j" }}</b></div>
+          <div class="stress-badge {% if s < 35 %}stress-low{% elif s < 65 %}stress-med{% else %}stress-high{% endif %}">{{ s }}</div>
+          <div class="checkin-text">
+            <p>{{ c.reflection_note|truncatechars:100 }}</p>
+            <small>{{ c.confidence_level|capfirst }} confidence &middot; {{ c.get_study_time_display }}</small>
+          </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      {% else %}
+        <div class="empty">
+          <div class="empty-icon">&#128196;</div>
+          <p>No check-ins logged this week yet.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="card card-deadlines">
+      <div class="card-label">Deadlines this week</div>
+      {% if deadlines %}
+        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:1.25rem;">
+          {% for d in deadlines %}
+          <div class="deadline-pill">
+            <span class="deadline-dot"></span>
+            {{ d.title }} &middot; {{ d.due_date|date:"M j" }}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">
+          <div class="empty-icon">&#128197;</div>
+          <p>No deadlines recorded this week.</p>
+        </div>
+      {% endif %}
+      <div style="margin-top:auto; padding-top:1.1rem; border-top:1px solid var(--border);">
+        <div class="card-label">Confidence this week</div>
+        <div class="confidence-display">{{ reflection.dominant_confidence }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI ANALYSIS -->
+  <div class="section-heading">AI-powered weekly analysis</div>
+
+  <div class="card card-summary summary-form" style="margin-bottom:1.25rem;">
+    <div class="card-label">
+      Your weekly summary
+      <span style="font-weight:400; color:var(--ink-faint); text-transform:none; letter-spacing:0; font-size:12px;">
+        — optional, helps the AI give better advice
+      </span>
+    </div>
+    <form method="post" id="summaryForm">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="run_ml">
+      <textarea name="user_summary" id="userSummary"
+        placeholder="How did this week feel overall? Mention anything that stood out — high pressure, moments of calm, disruptions to your routine, wins or frustrations…">{{ reflection.user_summary }}</textarea>
+      <div class="btn-row">
+        <button type="submit" class="btn btn-ai" id="analyzeBtn" onclick="showLoading()">
+          &#10024;&nbsp; Analyse with AI
+        </button>
+        <button type="submit" form="saveSummaryForm" class="btn btn-outline">
+          Save summary only
+        </button>
+      </div>
+    </form>
+    <form method="post" id="saveSummaryForm" style="display:none;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_summary">
+      <input type="hidden" name="user_summary" id="hiddenSummary">
+    </form>
+  </div>
+
+  <!-- ML RESULTS -->
+  {% if has_ml_results %}
+  <div class="ml-panel" id="mlResults">
+    <div class="ml-header ml-header-{{ reflection.ml_burnout_risk }}">
+      <div>
+        <div class="ml-header-inner-label">Burnout risk level</div>
+        <div class="burnout-badge burnout-{{ reflection.ml_burnout_risk }}">
+          {{ reflection.ml_burnout_risk|capfirst }} risk
+        </div>
+      </div>
+      <div class="ml-meta-group">
+        <div>
+          <div class="ml-header-inner-label">Stress trend</div>
+          <span class="trend-badge trend-{{ reflection.ml_stress_trend }}">
+            {% if reflection.ml_stress_trend == 'improving' %}&#8599;{% elif reflection.ml_stress_trend == 'worsening' %}&#8600;{% else %}&#8594;{% endif %}
+            {{ reflection.ml_stress_trend|capfirst }}
+          </span>
+        </div>
+        <div>
+          <div class="ml-header-inner-label">Wellness score</div>
+          <span class="ml-wellness-num">
+            {{ reflection.ml_wellness_score|floatformat:0 }}<span style="font-size:.9rem; color:var(--ink-muted); font-family:'Outfit',sans-serif;">/100</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ml-body">
+      <div class="score-bar-wrap">
+        <div class="score-bar-label">
+          <span>Stress risk score</span><span>{{ reflection.ml_burnout_score|floatformat:2 }}</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill {% if reflection.ml_burnout_risk == 'low' %}fill-low{% elif reflection.ml_burnout_risk == 'moderate' %}fill-mod{% else %}fill-high{% endif %}"
+               style="width:{{ reflection.ml_burnout_score|floatformat:2|default:'0' }}00%"></div>
+        </div>
+      </div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-label">
+          <span>Wellness score</span><span>{{ reflection.ml_wellness_score|floatformat:0 }}%</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill fill-accent" style="width:{{ reflection.ml_wellness_score|floatformat:0 }}%"></div>
+        </div>
+      </div>
+
+      <div class="card-label" style="margin-top:1.4rem;">AI recommendation</div>
+      <div class="recommendation">{{ reflection.ml_recommendation }}</div>
+
+      <div class="card-label">Focus areas for next week</div>
+      <ul class="focus-list">
+        {% for area in reflection.ml_focus_areas %}
+        <li class="focus-item">
+          <span class="focus-num">{{ forloop.counter }}</span>
+          <span>{{ area }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <div class="ml-meta">
+        <div class="ml-meta-item">
+          <div class="ml-meta-label">Predicted stress next week</div>
+          <div class="ml-meta-value">
+            {{ reflection.ml_predicted_next_stress|floatformat:0 }}<span style="font-size:.85rem; color:var(--ink-muted); font-family:'Outfit',sans-serif;"> / 100</span>
+          </div>
+        </div>
+        <div class="ml-meta-item">
+          <div class="ml-meta-label">Avg confidence this week</div>
+          <div class="ml-meta-value" style="text-transform:capitalize;">{{ reflection.dominant_confidence }}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.4rem; padding-top:1rem; border-top:1px solid var(--border); font-size:11px; color:var(--ink-faint); letter-spacing:.02em;">
+        Analysis generated {{ reflection.created_at|date:"N j, Y, g:i a" }} &middot;
+        Model trained on 800 synthetic student stress-pattern samples
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="card no-ai-card">
+    <span class="no-ai-icon">&#129302;</span>
+    <p style="color:var(--ink-muted); font-size:14px; margin-bottom:1.4rem; max-width:360px; margin-inline:auto; line-height:1.7;">
+      No AI analysis yet. Write a summary above (or leave it blank) and click <strong>Analyse with AI</strong>.
+    </p>
+    <button class="btn btn-ai" onclick="document.getElementById('analyzeBtn').click()">
+      &#10024;&nbsp; Run analysis now
+    </button>
+  </div>
+  {% endif %}
+
+  <!-- RECENT WEEKS -->
+  {% if past_reflections %}
+  <div class="section-heading">Recent weeks</div>
+  <div class="grid-4">
+    {% for pr in past_reflections %}
+    <a href="{% url 'reflections:weekly_reflection_offset' forloop.counter %}" class="history-card">
+      <div class="history-week">{{ pr.week_start|date:"M j" }} – {{ pr.week_end|date:"M j" }}</div>
+      {% if pr.ml_burnout_risk %}
+      <div class="history-risk">
+        <span class="dot dot-{% if pr.ml_burnout_risk == 'low' %}low{% elif pr.ml_burnout_risk == 'moderate' %}mod{% else %}high{% endif %}"></span>
+        {{ pr.ml_burnout_risk|capfirst }} risk
+      </div>
+      {% else %}
+      <div style="font-size:12px; color:var(--ink-faint);">No analysis</div>
+      {% endif %}
+      <div style="font-size:12px; color:var(--ink-muted); margin-top:.35rem;">
+        Stress: {{ pr.avg_stress_level|floatformat:0 }} &middot; {{ pr.completed_checkins }} check-ins
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const labels     = {{ daily_labels|safe }};
+  const stressData = {{ daily_stress|safe }};
+  const studyData  = {{ daily_study|safe }};
+
+  const sharedOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      backgroundColor: '#fff', titleColor: '#1a1f1a', bodyColor: '#5e6e5e',
+      borderColor: 'rgba(30,40,30,.12)', borderWidth: 1, padding: 10, cornerRadius: 8,
+    }},
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11, family: 'Outfit' }, color: '#9eae9e' } },
+      y: { grid: { color: 'rgba(30,40,30,.05)', drawBorder: false }, ticks: { font: { size: 11, family: 'Outfit' }, color: '#9eae9e' } }
+    }
+  };
+
+  new Chart(document.getElementById('stressChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: stressData,
+        borderColor: '#b03a2e',
+        backgroundColor: 'rgba(176,58,46,.09)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#b03a2e',
+        pointBorderColor: '#fff', pointBorderWidth: 2,
+        fill: true, tension: .4, spanGaps: true,
+      }]
+    },
+    options: { ...sharedOpts, scales: { ...sharedOpts.scales, y: { ...sharedOpts.scales.y, min: 0, max: 100 } } }
+  });
+
+  new Chart(document.getElementById('studyChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: studyData,
+        backgroundColor: 'rgba(37,99,175,.16)',
+        borderColor: '#2563af',
+        borderWidth: 1.5,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: sharedOpts
+  });
+
+  document.getElementById('userSummary').addEventListener('input', function () {
+    document.getElementById('hiddenSummary').value = this.value;
+  });
+  document.getElementById('hiddenSummary').value = document.getElementById('userSummary').value;
+
+  document.querySelectorAll('.score-bar-fill').forEach(function (el) {
+    var pct = parseFloat(el.style.width);
+    if (!isNaN(pct) && pct <= 1) el.style.width = (pct * 100).toFixed(1) + '%';
+  });
+
+  function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('active');
+  }
+</script>
+{% endblock %}

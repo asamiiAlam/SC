@@ -1,0 +1,479 @@
+{% extends "Base.html" %}
+{% load static %}
+
+{% block title %}Daily Check-In | Study Reflection Coach{% endblock %}
+
+{% block extra_styles %}
+/* ── Breathing orb animation ── */
+.breath-indicator {
+    animation: breathe 8s ease-in-out infinite;
+}
+@keyframes breathe {
+    0%, 100% { transform: scale(1);    opacity: 0.18; }
+    50%       { transform: scale(1.2); opacity: 0.35; }
+}
+
+/* ── Range thumb ── */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: #4f645b;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79,100,91,0.25);
+    transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover  { transform: scale(1.15); }
+input[type="range"]:disabled::-webkit-slider-thumb {
+    background: #a5b5b0;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 12px;
+    border-radius: 9999px;
+    background: #e3e3dc;
+}
+
+/* ── Button active states ── */
+.study-btn-active {
+    background-color: #4f645b !important;
+    color: #e7fef3 !important;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(79,100,91,0.25);
+}
+.conf-btn-active {
+    background-color: #4f645b !important;
+    color: #e7fef3 !important;
+    box-shadow: 0 8px 20px rgba(79,100,91,0.25);
+}
+
+/* ── Locked state ── */
+.checkin-locked .study-time-btn,
+.checkin-locked .conf-btn {
+    pointer-events: none;
+    opacity: 0.55;
+}
+.checkin-locked .study-time-btn.study-btn-active,
+.checkin-locked .conf-btn.conf-btn-active {
+    opacity: 1;
+    pointer-events: none;
+}
+.checkin-locked input[type="range"] {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* ── Badge ── */
+.locked-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    background-color: #efeee9;
+    color: #5e605b;
+    vertical-align: middle;
+}
+
+/* ── Hide Django formset management fields ── */
+.formset-management-fields { display: none; }
+
+/* ── Deadline card entrance ── */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+.deadline-form { animation: slideIn 0.25s ease forwards; }
+{% endblock %}
+
+{% block content %}
+<main class="pt-32 pb-28 px-6 md:px-12 max-w-5xl mx-auto relative">
+
+    <!-- Decorative orb -->
+    <div class="pointer-events-none absolute -left-24 top-44 w-72 h-72 bg-gradient-to-tr from-primary-container to-secondary-container rounded-full blur-3xl breath-indicator"></div>
+    <div class="pointer-events-none absolute right-0 top-96 w-48 h-48 bg-gradient-to-bl from-tertiary-container to-primary-container rounded-full blur-3xl opacity-10 breath-indicator" style="animation-delay:4s"></div>
+
+    <!-- Flash messages -->
+    {% if messages %}
+    <div class="mb-10 space-y-3">
+        {% for message in messages %}
+        <div class="flex items-center gap-3 px-6 py-4 rounded-2xl font-medium text-sm
+            {% if message.tags == 'error'   %}bg-error-container   text-on-error-container
+            {% elif message.tags == 'warning' %}bg-tertiary-container text-on-tertiary-container
+            {% else %}bg-primary-container text-on-primary-container{% endif %}">
+            <span class="material-symbols-outlined text-[18px]">
+                {% if message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}check_circle{% endif %}
+            </span>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Page header -->
+    <header class="mb-14 space-y-4">
+        <h1 class="font-headline text-5xl md:text-6xl font-extrabold tracking-tight text-primary leading-tight">
+            {% if today_checkin %}Good work today.{% else %}Pause for a moment{% endif %}
+        </h1>
+        <p class="text-on-surface-variant text-xl font-light max-w-2xl leading-relaxed">
+            {% if today_checkin %}
+                Your check-in is saved for today — feel free to add more deadlines below whenever you need.
+            {% else %}
+                Take a deep breath. This is your personal sanctuary to ground yourself. Let's see where you are today.
+            {% endif %}
+        </p>
+        {% if today_checkin %}
+        <span class="locked-badge">
+            <span class="material-symbols-outlined" style="font-size:12px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">lock</span>
+            Check-in locked for today
+        </span>
+        {% endif %}
+    </header>
+
+    <!-- ════════════════ FORM ════════════════ -->
+    <form
+        method="POST"
+        action="{% url 'reflections:daily_checkin' %}"
+        class="grid grid-cols-1 lg:grid-cols-12 gap-12 {% if today_checkin %}checkin-locked{% endif %}"
+    >
+        {% csrf_token %}
+
+        <!-- Hidden scalar inputs written by JS -->
+        {{ form.study_time }}
+        {{ form.stress_level }}
+        {{ form.confidence_level }}
+
+        <!-- Formset management (hidden) -->
+        <div class="formset-management-fields">
+            {{ deadline_formset.management_form }}
+        </div>
+
+        <!-- ══════════ LEFT — Check-In fields ══════════ -->
+        <div class="lg:col-span-7 space-y-12">
+
+            <!-- Study time -->
+            <section class="space-y-5">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <label class="font-headline text-2xl font-bold text-on-surface flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">schedule</span>
+                        Study time
+                    </label>
+                    {% if today_checkin %}
+                    <span class="locked-badge">
+                        <span class="material-symbols-outlined" style="font-size:11px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">lock</span>
+                        Locked
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="flex flex-wrap gap-3" id="study-time-group">
+                    {% for value, label in form.study_time.field.choices %}
+                    <button
+                        class="study-time-btn px-6 py-3 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-95 font-medium {% if form.study_time.value == value %}study-btn-active{% endif %}"
+                        data-value="{{ value }}"
+                        type="button"
+                        {% if today_checkin %}disabled aria-disabled="true"{% endif %}>
+                        {{ label }}
+                    </button>
+                    {% endfor %}
+                </div>
+                {% if form.study_time.errors %}
+                <p class="text-error text-sm">{{ form.study_time.errors.0 }}</p>
+                {% endif %}
+            </section>
+
+            <!-- Stress level -->
+            <section class="space-y-5">
+                <div class="flex justify-between items-end flex-wrap gap-3">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <label class="font-headline text-2xl font-bold text-on-surface flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">self_improvement</span>
+                            Stress level
+                        </label>
+                        {% if today_checkin %}
+                        <span class="locked-badge">
+                            <span class="material-symbols-outlined" style="font-size:11px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">lock</span>
+                            Locked
+                        </span>
+                        {% endif %}
+                    </div>
+                    <span id="stress-label" class="text-primary font-bold text-base px-4 py-1 bg-primary-container rounded-full shrink-0">Balanced</span>
+                </div>
+                <div class="relative pt-2">
+                    <input
+                        id="stress-slider"
+                        class="w-full h-3 rounded-full appearance-none cursor-pointer accent-primary"
+                        max="100" min="0" type="range"
+                        value="{{ form.stress_level.value|default:50 }}"
+                        {% if today_checkin %}disabled{% endif %}
+                    />
+                    <div class="flex justify-between mt-3 text-sm font-medium text-on-surface-variant">
+                        <span>Calm</span>
+                        <span>Intense</span>
+                    </div>
+                </div>
+                {% if form.stress_level.errors %}
+                <p class="text-error text-sm">{{ form.stress_level.errors.0 }}</p>
+                {% endif %}
+            </section>
+
+            <!-- Confidence level -->
+            <section class="space-y-5">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <label class="font-headline text-2xl font-bold text-on-surface flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                        Confidence level
+                    </label>
+                    {% if today_checkin %}
+                    <span class="locked-badge">
+                        <span class="material-symbols-outlined" style="font-size:11px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">lock</span>
+                        Locked
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="flex gap-4 flex-wrap" id="confidence-group">
+                    {% for conf_value, conf_label in form.confidence_level.field.choices %}
+                        {% if conf_value == 'very_low' %}{% with icon="sentiment_very_dissatisfied" %}
+                        <button class="conf-btn w-16 h-16 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-tertiary-container transition-all active:scale-90 {% if form.confidence_level.value == conf_value %}conf-btn-active{% endif %}"
+                            data-value="{{ conf_value }}" type="button" title="{{ conf_label }}"
+                            {% if today_checkin %}disabled aria-disabled="true"{% endif %}>
+                            <span class="material-symbols-outlined text-3xl">{{ icon }}</span>
+                        </button>
+                        {% endwith %}{% endif %}
+                        {% if conf_value == 'low' %}{% with icon="sentiment_neutral" %}
+                        <button class="conf-btn w-16 h-16 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-tertiary-container transition-all active:scale-90 {% if form.confidence_level.value == conf_value %}conf-btn-active{% endif %}"
+                            data-value="{{ conf_value }}" type="button" title="{{ conf_label }}"
+                            {% if today_checkin %}disabled aria-disabled="true"{% endif %}>
+                            <span class="material-symbols-outlined text-3xl">{{ icon }}</span>
+                        </button>
+                        {% endwith %}{% endif %}
+                        {% if conf_value == 'medium' %}{% with icon="sentiment_satisfied" %}
+                        <button class="conf-btn w-16 h-16 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-tertiary-container transition-all active:scale-90 {% if form.confidence_level.value == conf_value %}conf-btn-active{% endif %}"
+                            data-value="{{ conf_value }}" type="button" title="{{ conf_label }}"
+                            {% if today_checkin %}disabled aria-disabled="true"{% endif %}>
+                            <span class="material-symbols-outlined text-3xl">{{ icon }}</span>
+                        </button>
+                        {% endwith %}{% endif %}
+                        {% if conf_value == 'high' %}{% with icon="sentiment_very_satisfied" %}
+                        <button class="conf-btn w-16 h-16 flex items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-tertiary-container transition-all active:scale-90 {% if form.confidence_level.value == conf_value %}conf-btn-active{% endif %}"
+                            data-value="{{ conf_value }}" type="button" title="{{ conf_label }}"
+                            {% if today_checkin %}disabled aria-disabled="true"{% endif %}>
+                            <span class="material-symbols-outlined text-3xl">{{ icon }}</span>
+                        </button>
+                        {% endwith %}{% endif %}
+                    {% endfor %}
+                </div>
+                {% if form.confidence_level.errors %}
+                <p class="text-error text-sm">{{ form.confidence_level.errors.0 }}</p>
+                {% endif %}
+            </section>
+
+            <!-- Reflection note -->
+            <section class="space-y-4">
+                <div class="p-8 bg-surface-container-low rounded-2xl relative">
+                    <label class="font-headline text-2xl font-bold text-on-surface flex items-center gap-3 mb-4 flex-wrap">
+                        Reflection note
+                        {% if today_checkin %}
+                        <span class="locked-badge">
+                            <span class="material-symbols-outlined" style="font-size:11px;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">lock</span>
+                            Locked
+                        </span>
+                        {% endif %}
+                    </label>
+                    {% if today_checkin %}
+                        <p class="text-on-surface text-base leading-relaxed whitespace-pre-wrap min-h-[5rem] opacity-75">
+                            {{ today_checkin.reflection_note|default:"No reflection note added." }}
+                        </p>
+                    {% else %}
+                        {{ form.reflection_note }}
+                    {% endif %}
+                </div>
+                <p class="text-on-surface-variant text-sm italic opacity-60">
+                    {% if today_checkin %}Your reflection is saved privately.
+                    {% else %}Optional: Your thoughts stay private and safe here.{% endif %}
+                </p>
+            </section>
+        </div>
+
+        <!-- ══════════ RIGHT — Deadlines (always open) ══════════ -->
+        <div class="lg:col-span-5 space-y-10">
+            <section class="space-y-6">
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <label class="font-headline text-2xl font-bold text-on-surface flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">event_upcoming</span>
+                        Upcoming deadlines
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <!-- JS: adds a blank input row -->
+                        <button
+                            id="add-row-btn"
+                            class="px-4 py-2.5 font-headline font-bold text-sm bg-surface-container text-on-surface-variant rounded-full transition-all hover:bg-surface-container-high active:scale-95 flex items-center gap-1.5"
+                            type="button">
+                            <span class="material-symbols-outlined text-[18px]">add</span>
+                            New row
+                        </button>
+                        <!-- Submit: POSTs and saves deadline(s) to the DB -->
+                        <button
+                            name="action"
+                            value="add_deadline"
+                            class="px-5 py-2.5 font-headline font-bold text-sm bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full shadow-lg shadow-primary/20 transform transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                            type="submit">
+                            <span class="material-symbols-outlined text-[18px]">save</span>
+                            Save deadline
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing saved deadlines (read-only display) -->
+                {% if today_checkin and today_checkin.deadlines.all %}
+                <div class="space-y-3">
+                    <p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant/60">Saved</p>
+                    {% for dl in today_checkin.deadlines.all %}
+                    <div class="flex items-center justify-between gap-3 px-4 py-3 bg-surface-container rounded-xl text-sm">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="material-symbols-outlined text-primary text-[18px]">task_alt</span>
+                            <span class="font-medium text-on-surface truncate">{{ dl.title }}</span>
+                        </div>
+                        <span class="text-on-surface-variant shrink-0">{{ dl.due_date|date:"M d" }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- New deadline forms (formset) -->
+                <div id="deadline-forms" class="space-y-4">
+                    {% for deadline_form in deadline_formset %}
+                    {% if not deadline_form.instance.pk %}
+                    {# Only render blank (unsaved) forms from the formset on GET #}
+                    <div class="deadline-form space-y-3 p-4 bg-surface-container-low rounded-2xl border border-surface-container-highest/40">
+                        <div class="relative">
+                            {{ deadline_form.title }}
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-[20px] pointer-events-none">edit_note</span>
+                        </div>
+                        {% if deadline_form.title.errors %}
+                        <p class="text-error text-xs">{{ deadline_form.title.errors.0 }}</p>
+                        {% endif %}
+                        <div class="relative">
+                            {{ deadline_form.due_date }}
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-[20px] pointer-events-none">calendar_month</span>
+                        </div>
+                        {% if deadline_form.due_date.errors %}
+                        <p class="text-error text-xs">{{ deadline_form.due_date.errors.0 }}</p>
+                        {% endif %}
+                        {% if deadline_form.DELETE %}{{ deadline_form.DELETE }}{% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if deadline_formset.non_form_errors %}
+                <p class="text-error text-sm">{{ deadline_formset.non_form_errors.0 }}</p>
+                {% endif %}
+
+                {% if today_checkin %}
+                <p class="text-on-surface-variant text-xs italic opacity-60">
+                    You can keep adding deadlines any time today.
+                </p>
+                {% endif %}
+            </section>
+        </div>
+
+        <!-- ══════════ FOOTER ══════════ -->
+        <div class="lg:col-span-12 pt-10 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-surface-container-highest/50">
+            <div class="flex items-center gap-3 text-on-surface-variant bg-surface-container rounded-full px-6 py-3">
+                <span class="material-symbols-outlined text-primary text-[20px]">verified_user</span>
+                <p class="text-sm font-medium">This is a space for your growth, not a test.</p>
+            </div>
+
+            {% if today_checkin %}
+            <!-- Locked state: submit button disabled, shows lock -->
+            <div class="flex items-center gap-3 px-10 py-4 font-headline font-bold bg-surface-container text-on-surface-variant rounded-full opacity-70 cursor-not-allowed select-none">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 20;">lock</span>
+                Check-In Saved for Today
+            </div>
+            {% else %}
+            <button
+                name="action"
+                value="submit_checkin"
+                class="px-12 py-4 font-headline font-bold bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-full shadow-2xl shadow-primary/30 transform transition-all hover:scale-105 active:scale-95"
+                type="submit">
+                Submit Check-In
+            </button>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- ── Template for JS-cloned deadline rows ── -->
+    <template id="empty-deadline-form-template">
+        <div class="deadline-form space-y-3 p-4 bg-surface-container-low rounded-2xl border border-surface-container-highest/40">
+            <div class="relative">
+                {{ deadline_formset.empty_form.title }}
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-[20px] pointer-events-none">edit_note</span>
+            </div>
+            <div class="relative">
+                {{ deadline_formset.empty_form.due_date }}
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-[20px] pointer-events-none">calendar_month</span>
+            </div>
+        </div>
+    </template>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// ── Study time buttons ────────────────────────────────────────────────────────
+const studyInput = document.getElementById('id_study_time');
+document.querySelectorAll('.study-time-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.study-time-btn').forEach(b => b.classList.remove('study-btn-active'));
+        btn.classList.add('study-btn-active');
+        studyInput.value = btn.dataset.value;
+    });
+});
+
+// ── Stress slider ─────────────────────────────────────────────────────────────
+const stressSlider = document.getElementById('stress-slider');
+const stressLabel  = document.getElementById('stress-label');
+const stressInput  = document.getElementById('id_stress_level');
+
+function updateStress(val) {
+    const n = parseInt(val, 10);
+    stressInput.value = n;
+    stressLabel.textContent = n <= 33 ? 'Calm' : n <= 66 ? 'Balanced' : 'Intense';
+}
+stressSlider.addEventListener('input', e => updateStress(e.target.value));
+updateStress(stressSlider.value);
+
+// ── Confidence buttons ────────────────────────────────────────────────────────
+const confInput = document.getElementById('id_confidence_level');
+document.querySelectorAll('.conf-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('conf-btn-active'));
+        btn.classList.add('conf-btn-active');
+        confInput.value = btn.dataset.value;
+    });
+});
+
+// ── Dynamic deadline rows ─────────────────────────────────────────────────────
+const addBtn      = document.getElementById('add-row-btn');
+const container   = document.getElementById('deadline-forms');
+const totalInput  = document.getElementById('id_deadlines-TOTAL_FORMS');
+const tmpl        = document.getElementById('empty-deadline-form-template');
+
+if (addBtn && container && totalInput && tmpl) {
+    addBtn.addEventListener('click', () => {
+        const idx  = parseInt(totalInput.value, 10);
+        const html = tmpl.innerHTML.replace(/__prefix__/g, idx);
+        container.insertAdjacentHTML('beforeend', html);
+        totalInput.value = idx + 1;
+        // Auto-focus the new title field
+        container.lastElementChild?.querySelector('input[type="text"]')?.focus();
+    });
+}
+</script>
+{% endblock %}

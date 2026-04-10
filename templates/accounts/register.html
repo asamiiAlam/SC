@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Join Study Reflection Coach</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#c6d6ed",
+              "on-background": "#31332f",
+              "tertiary-dim": "#5d523b",
+              "inverse-primary": "#e7fff3",
+              "tertiary-fixed-dim": "#efdec0",
+              "primary-fixed": "#d1e8dd",
+              "surface-container": "#efeee9",
+              "on-tertiary-container": "#635740",
+              "outline-variant": "#b2b2ad",
+              "secondary-fixed": "#d4e4fb",
+              "on-tertiary-fixed-variant": "#6d614a",
+              "surface-dim": "#dadad4",
+              "background": "#fbf9f5",
+              "secondary-dim": "#455467",
+              "primary-dim": "#43574f",
+              "on-secondary-fixed": "#314153",
+              "on-error": "#fff7f6",
+              "on-primary-container": "#42564e",
+              "on-primary-fixed-variant": "#4b6057",
+              "secondary": "#516074",
+              "inverse-on-surface": "#9e9d99",
+              "tertiary-container": "#feecce",
+              "error-container": "#fa746f",
+              "primary": "#4f645b",
+              "surface-container-low": "#f5f4ef",
+              "on-surface": "#31332f",
+              "on-secondary": "#f7f9ff",
+              "inverse-surface": "#0e0e0d",
+              "error-dim": "#67040d",
+              "surface-bright": "#fbf9f5",
+              "tertiary": "#6a5e46",
+              "primary-container": "#d1e8dd",
+              "surface-container-highest": "#e3e3dc",
+              "secondary-container": "#d4e4fb",
+              "on-secondary-fixed-variant": "#4d5d70",
+              "outline": "#7a7b76",
+              "surface-variant": "#e3e3dc",
+              "primary-fixed-dim": "#c3dacf",
+              "on-secondary-container": "#445366",
+              "on-primary-fixed": "#2f433c",
+              "error": "#a83836",
+              "on-primary": "#e7fef3",
+              "on-tertiary-fixed": "#50452f",
+              "tertiary-fixed": "#feecce",
+              "surface": "#fbf9f5",
+              "on-tertiary": "#fff8f1",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#e9e8e3",
+              "on-surface-variant": "#5e605b",
+              "surface-tint": "#4f645b",
+              "on-error-container": "#6e0a12"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px"
+            }
+          }
+        }
+      }
+    </script>
+
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      }
+      .breath-pulse {
+        animation: breath 8s ease-in-out infinite;
+      }
+      @keyframes breath {
+        0%, 100% { transform: scale(1); opacity: 0.4; }
+        50% { transform: scale(1.1); opacity: 0.7; }
+      }
+      .editorial-shadow {
+        box-shadow: 0 40px 80px -20px rgba(79, 100, 91, 0.08);
+      }
+    </style>
+</head>
+
+<body class="bg-background font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+<header class="w-full top-0 sticky z-50 bg-[#fbf9f5]">
+    <div class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-bold text-[#4f645b] font-headline tracking-tight">
+                Study Reflection Coach
+            </span>
+        </div>
+        <a class="text-[#5e605b] hover:opacity-80 transition-opacity font-medium flex items-center gap-2" href="#">
+            <span class="material-symbols-outlined text-lg">help_outline</span>
+        </a>
+    </div>
+</header>
+
+<main class="min-h-[calc(100vh-180px)] flex items-center justify-center px-6 py-12 md:py-20 overflow-hidden relative">
+    <div class="absolute top-1/4 -right-20 w-96 h-96 breath-pulse bg-gradient-to-br from-primary-container to-secondary-container rounded-full blur-3xl -z-10"></div>
+    <div class="absolute bottom-1/4 -left-20 w-64 h-64 breath-pulse bg-gradient-to-tr from-secondary-container to-tertiary-container rounded-full blur-3xl -z-10" style="animation-delay: 2s;"></div>
+
+    <div class="w-full max-w-5xl flex flex-col md:flex-row gap-12 lg:gap-20 items-center">
+
+        <div class="w-full md:w-1/2 space-y-8">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-container/40 text-primary font-medium text-sm">
+                <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                A sanctuary for your academic journey
+            </div>
+
+            <h1 class="font-headline text-5xl lg:text-6xl font-bold text-primary tracking-tight leading-[1.1]">
+                Begin your <br/>
+                <span class="text-secondary italic">gentle reflection.</span>
+            </h1>
+
+            <p class="text-on-surface-variant text-lg max-w-md leading-relaxed">
+                A space designed specifically for first-generation students to breathe, reflect, and grow without the pressure of metrics.
+            </p>
+
+            <div class="grid grid-cols-1 gap-6 pt-4">
+                <div class="flex items-start gap-4 p-6 rounded-xl rounded-br-sm bg-surface-container-low">
+                    <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+                    <div>
+                        <h3 class="font-bold text-on-surface">Safe Space</h3>
+                        <p class="text-sm text-on-surface-variant">Your reflections are private, protected, and honored.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 lg:w-5/12">
+            <div class="bg-surface-container-lowest rounded-[2rem] p-8 md:p-10 editorial-shadow">
+                <h2 class="font-headline text-2xl font-bold mb-8 text-on-surface">Create your sanctuary</h2>
+
+                {% if messages %}
+                    <div class="space-y-3 mb-6">
+                        {% for message in messages %}
+                            <div class="rounded-2xl px-4 py-3 text-sm font-medium
+                                {% if message.tags == 'error' %}
+                                    bg-red-100 text-red-700 border border-red-200
+                                {% elif message.tags == 'success' %}
+                                    bg-green-100 text-green-700 border border-green-200
+                                {% else %}
+                                    bg-gray-100 text-gray-700 border border-gray-200
+                                {% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if form.errors %}
+                    <div class="mb-6 rounded-2xl px-5 py-4 text-sm bg-red-100 text-red-600 border border-red-200">
+                        <ul class="list-disc pl-5 space-y-1">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'register' %}" class="space-y-5">
+                    {% csrf_token %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1" for="first_name">
+                                First Name
+                            </label>
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-full p-4 focus:ring-0 focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant/60"
+                                id="first_name"
+                                name="first_name"
+                                type="text"
+                                placeholder="First name"
+                                value="{{ form.first_name.value|default:'' }}"
+                                required
+                            />
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1" for="last_name">
+                                Last Name
+                            </label>
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-full p-4 focus:ring-0 focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant/60"
+                                id="last_name"
+                                name="last_name"
+                                type="text"
+                                placeholder="Last name"
+                                value="{{ form.last_name.value|default:'' }}"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1" for="email">
+                            Email Address
+                        </label>
+                        <input
+                            class="w-full bg-surface-container-low border-none rounded-full p-4 focus:ring-0 focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant/60"
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="email@university.edu"
+                            value="{{ form.email.value|default:'' }}"
+                            required
+                        />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1" for="phone_number">
+                            Phone Number
+                        </label>
+                        <input
+                            class="w-full bg-surface-container-low border-none rounded-full p-4 focus:ring-0 focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant/60"
+                            id="phone_number"
+                            name="phone_number"
+                            type="text"
+                            placeholder="+8801XXXXXXXXX"
+                            value="{{ form.phone_number.value|default:'' }}"
+                            required
+                        />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1" for="password">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-full p-4 pr-14 focus:ring-0 focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant/60"
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder="Create a secure space"
+                                required
+                            />
+                            <button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline" type="button" onclick="togglePassword('password', this)">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1" for="confirm_password">
+                            Confirm Password
+                        </label>
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-full p-4 pr-14 focus:ring-0 focus:bg-surface-container-lowest transition-all placeholder:text-outline-variant/60"
+                                id="confirm_password"
+                                name="confirm_password"
+                                type="password"
+                                placeholder="Confirm your password"
+                                required
+                            />
+                            <button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline" type="button" onclick="togglePassword('confirm_password', this)">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-primary text-on-primary py-5 rounded-full font-headline font-bold text-lg hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 flex justify-center items-center gap-2 group" type="submit">
+                        Start Your Journey
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">east</span>
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-8 border-t border-surface-container flex flex-col items-center gap-4">
+                    <p class="text-on-surface-variant text-sm">
+                        Already have an account?
+                        <a class="text-primary font-bold hover:underline underline-offset-4 decoration-primary-container decoration-2 ml-1" href="{% url 'login' %}">
+                            Log in
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="w-full py-12 bg-[#fbf9f5]">
+    <div class="flex flex-col items-center gap-4 px-8">
+        <div class="flex gap-8 text-[#5e605b] font-['Manrope'] text-sm italic">
+            <a class="hover:text-[#4f645b] transition-colors" href="#">Privacy</a>
+            <a class="hover:text-[#4f645b] transition-colors" href="#">Terms</a>
+            <a class="hover:text-[#4f645b] transition-colors" href="#">Support</a>
+        </div>
+        <p class="text-[#5e605b] font-['Manrope'] text-sm italic">© 2024 Study Reflection Coach. You are doing enough.</p>
+    </div>
+</footer>
+
+<script>
+    function togglePassword(fieldId, button) {
+        const input = document.getElementById(fieldId);
+        const icon = button.querySelector('.material-symbols-outlined');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    }
+</script>
+
+</body>
+</html>

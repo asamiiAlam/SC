@@ -1,0 +1,50 @@
+{% extends "Base.html" %}
+
+{% block title %}Check-In Submitted | Study Reflection Coach{% endblock %}
+
+{% block extra_styles %}
+@keyframes pop-in {
+    0%   { transform: scale(0.8); opacity: 0; }
+    70%  { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.pop-in { animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+{% endblock %}
+
+{% block content %}
+<main class="pt-32 pb-24 px-6 min-h-screen flex items-center justify-center">
+    <div class="text-center max-w-lg w-full px-6">
+
+        <!-- Icon -->
+        <div class="w-24 h-24 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-8 pop-in">
+            <span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings:'FILL' 1;">check_circle</span>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="font-headline text-5xl font-extrabold text-primary mb-4 tracking-tight">Well done!</h1>
+        <p class="text-on-surface-variant text-xl font-light leading-relaxed mb-12">
+            Your check-in has been recorded.<br/>Every reflection is a step forward.
+        </p>
+
+        <!-- Divider -->
+        <div class="w-16 h-1 bg-primary-container rounded-full mx-auto mb-12"></div>
+
+        <!-- Quote -->
+        <p class="text-on-surface-variant text-base italic font-light mb-12 max-w-sm mx-auto leading-relaxed">
+            "Progress is not always visible, but every small step matters."
+        </p>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'reflections:daily_checkin' %}"
+               class="px-8 py-4 bg-gradient-to-r from-primary to-primary-dim text-on-primary font-bold rounded-full shadow-xl shadow-primary/20 hover:scale-105 transition-transform font-headline">
+                New Check-In
+            </a>
+            <a href="{% url 'reflections:checkin_history' %}"
+               class="px-8 py-4 border-2 border-primary text-primary font-bold rounded-full hover:bg-primary-container transition-all font-headline">
+                View History
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

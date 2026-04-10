@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{% block title %}Study Reflection Coach{% endblock %}</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary-fixed": "#d1e8dd","tertiary-fixed": "#feecce","on-tertiary-fixed": "#50452f",
+                    "background": "#fbf9f5","on-primary-container": "#42564e","tertiary": "#6a5e46",
+                    "tertiary-fixed-dim": "#efdec0","secondary-container": "#d4e4fb","on-primary-fixed": "#2f433c",
+                    "inverse-surface": "#0e0e0d","on-secondary-fixed": "#314153","surface-container-highest": "#e3e3dc",
+                    "on-tertiary": "#fff8f1","on-secondary": "#f7f9ff","primary-dim": "#43574f",
+                    "surface-container": "#efeee9","on-primary": "#e7fef3","inverse-primary": "#e7fff3",
+                    "secondary": "#516074","outline": "#7a7b76","on-secondary-container": "#445366",
+                    "error-dim": "#67040d","surface-bright": "#fbf9f5","on-surface": "#31332f",
+                    "on-error-container": "#6e0a12","secondary-fixed": "#d4e4fb","on-error": "#fff7f6",
+                    "secondary-fixed-dim": "#c6d6ed","primary-container": "#d1e8dd","surface-container-high": "#e9e8e3",
+                    "secondary-dim": "#455467","primary": "#4f645b","on-secondary-fixed-variant": "#4d5d70",
+                    "surface-variant": "#e3e3dc","surface-container-lowest": "#ffffff","error-container": "#fa746f",
+                    "inverse-on-surface": "#9e9d99","surface-tint": "#4f645b","on-background": "#31332f",
+                    "on-tertiary-container": "#635740","surface-dim": "#dadad4","on-primary-fixed-variant": "#4b6057",
+                    "tertiary-container": "#feecce","primary-fixed-dim": "#c3dacf","on-surface-variant": "#5e605b",
+                    "on-tertiary-fixed-variant": "#6d614a","surface-container-low": "#f5f4ef",
+                    "outline-variant": "#b2b2ad","tertiary-dim": "#5d523b","error": "#a83836","surface": "#fbf9f5"
+                },
+                fontFamily: {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+                },
+                borderRadius: {"DEFAULT": "1rem","lg": "2rem","xl": "3rem","full": "9999px"},
+            },
+        },
+    }
+</script>
+
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+
+    {% block extra_styles %}{% endblock %}
+</style>
+
+{% block extra_css %}{% endblock %}
+{% block extra_js_head %}{% endblock %}
+</head>
+
+<body class="bg-background font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- Header -->
+<nav class="fixed top-0 w-full bg-[#fbf9f5] z-50 border-b border-surface-container-highest/40">
+    <div class="flex justify-between items-center px-12 py-6 max-w-screen-2xl mx-auto">
+        <a href="{% url 'reflections:dashboard' %}" class="text-xl font-bold text-[#4f645b] font-['Plus_Jakarta_Sans'] tracking-tight hover:opacity-80 transition-opacity">
+            Study Reflection Coach
+        </a>
+
+        <div class="hidden md:flex gap-10 items-center">
+            <a class="font-medium font-['Plus_Jakarta_Sans'] transition-all
+                {% if request.resolver_match.url_name == 'dashboard' %}
+                    text-[#4f645b] font-semibold border-b-2 border-[#4f645b] pb-1
+                {% else %}
+                    text-stone-500 hover:text-[#4f645b]
+                {% endif %}"
+                href="{% url 'reflections:dashboard' %}">Dashboard</a>
+
+            <a class="font-medium font-['Plus_Jakarta_Sans'] transition-all
+                {% if request.resolver_match.url_name == 'daily_checkin' %}
+                    text-[#4f645b] font-semibold border-b-2 border-[#4f645b] pb-1
+                {% else %}
+                    text-stone-500 hover:text-[#4f645b]
+                {% endif %}"
+                href="{% url 'reflections:daily_checkin' %}">Daily Check-In</a>
+
+            <a class="font-medium font-['Plus_Jakarta_Sans'] transition-all
+                {% if request.resolver_match.url_name == 'weekly_reflection' or request.resolver_match.url_name == 'weekly_reflection_offset' %}
+                    text-[#4f645b] font-semibold border-b-2 border-[#4f645b] pb-1
+                {% else %}
+                    text-stone-500 hover:text-[#4f645b]
+                {% endif %}"
+                href="{% url 'reflections:weekly_reflection' %}">Weekly Reflection</a>
+
+            <a class="font-medium font-['Plus_Jakarta_Sans'] transition-all
+                {% if request.resolver_match.url_name == 'checkin_history' %}
+                    text-[#4f645b] font-semibold border-b-2 border-[#4f645b] pb-1
+                {% else %}
+                    text-stone-500 hover:text-[#4f645b]
+                {% endif %}"
+                href="{% url 'reflections:checkin_history' %}">History</a>
+        </div>
+
+        <div class="flex items-center gap-3">
+            {% if request.user.is_authenticated %}
+            <span class="hidden md:block text-sm text-on-surface-variant font-medium">
+                {{ request.user.first_name|default:request.user.email }}
+            </span>
+            <a href="{% url 'logout' %}"
+               class="p-2 hover:bg-stone-100 rounded-full transition-all flex items-center gap-1 text-sm text-stone-500 hover:text-[#4f645b]">
+                <span class="material-symbols-outlined text-[#4f645b]">logout</span>
+            </a>
+            {% endif %}
+            <button class="p-2 hover:bg-stone-100 rounded-full transition-all">
+                <span class="material-symbols-outlined text-[#4f645b]">settings</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<footer class="w-full py-16 bg-stone-50 border-t border-surface-container-highest/40">
+    <div class="flex flex-col md:flex-row justify-between items-center px-12 max-w-screen-2xl mx-auto gap-6">
+        <div class="flex flex-col md:flex-row items-center gap-4">
+            <span class="text-[#4f645b] font-bold font-['Plus_Jakarta_Sans']">Study Reflection Coach</span>
+            <span class="hidden md:block text-stone-300">|</span>
+            <p class="text-stone-500 font-['Manrope'] text-sm">© 2024 Breathe and reflect.</p>
+        </div>
+        <div class="flex gap-12">
+            <a class="text-stone-500 hover:text-[#4f645b] font-['Manrope'] text-sm transition-colors" href="#">Student Support</a>
+            <a class="text-stone-500 hover:text-[#4f645b] font-['Manrope'] text-sm transition-colors" href="#">Privacy Policy</a>
+            <a class="text-stone-500 hover:text-[#4f645b] font-['Manrope'] text-sm transition-colors" href="#">Terms of Service</a>
+        </div>
+    </div>
+</footer>
+
+{% block extra_scripts %}{% endblock %}
+{% block extra_js %}{% endblock %}
+</body>
+</html>

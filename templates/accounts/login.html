@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Login | Study Reflection Coach</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Manrope:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed-dim": "#c6d6ed",
+                        "on-background": "#31332f",
+                        "tertiary-dim": "#5d523b",
+                        "inverse-primary": "#e7fff3",
+                        "tertiary-fixed-dim": "#efdec0",
+                        "primary-fixed": "#d1e8dd",
+                        "surface-container": "#efeee9",
+                        "on-tertiary-container": "#635740",
+                        "outline-variant": "#b2b2ad",
+                        "secondary-fixed": "#d4e4fb",
+                        "on-tertiary-fixed-variant": "#6d614a",
+                        "surface-dim": "#dadad4",
+                        "background": "#fbf9f5",
+                        "secondary-dim": "#455467",
+                        "primary-dim": "#43574f",
+                        "on-secondary-fixed": "#314153",
+                        "on-error": "#fff7f6",
+                        "on-primary-container": "#42564e",
+                        "on-primary-fixed-variant": "#4b6057",
+                        "secondary": "#516074",
+                        "inverse-on-surface": "#9e9d99",
+                        "tertiary-container": "#feecce",
+                        "error-container": "#fa746f",
+                        "primary": "#4f645b",
+                        "surface-container-low": "#f5f4ef",
+                        "on-surface": "#31332f",
+                        "on-secondary": "#f7f9ff",
+                        "inverse-surface": "#0e0e0d",
+                        "error-dim": "#67040d",
+                        "surface-bright": "#fbf9f5",
+                        "tertiary": "#6a5e46",
+                        "primary-container": "#d1e8dd",
+                        "surface-container-highest": "#e3e3dc",
+                        "secondary-container": "#d4e4fb",
+                        "on-secondary-fixed-variant": "#4d5d70",
+                        "outline": "#7a7b76",
+                        "surface-variant": "#e3e3dc",
+                        "primary-fixed-dim": "#c3dacf",
+                        "on-secondary-container": "#445366",
+                        "on-primary-fixed": "#2f433c",
+                        "error": "#a83836",
+                        "on-primary": "#e7fef3",
+                        "on-tertiary-fixed": "#50452f",
+                        "tertiary-fixed": "#feecce",
+                        "surface": "#fbf9f5",
+                        "on-tertiary": "#fff8f1",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e9e8e3",
+                        "on-surface-variant": "#5e605b",
+                        "surface-tint": "#4f645b",
+                        "on-error-container": "#6e0a12"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .breath-indicator {
+            animation: pulse 8s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.6; }
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface font-body min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container">
+
+<main class="flex-grow flex items-center justify-center px-6 py-12 relative overflow-hidden">
+    <div class="breath-indicator absolute top-[-10%] right-[-5%] w-96 h-96 rounded-full bg-gradient-to-br from-primary-container to-secondary-container blur-3xl -z-10"></div>
+    <div class="breath-indicator absolute bottom-[-5%] left-[-5%] w-80 h-80 rounded-full bg-gradient-to-tr from-tertiary-container to-primary-container blur-3xl -z-10" style="animation-delay: 2s;"></div>
+
+    <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-16 items-center">
+
+        <!-- Left Side -->
+        <div class="hidden md:flex md:col-span-6 flex-col gap-8 pr-12">
+            <div class="space-y-4">
+                <h1 class="font-headline text-5xl font-extrabold tracking-tight text-primary leading-tight">
+                    Your quiet space <br>for deep learning.
+                </h1>
+                <p class="text-on-surface-variant text-lg max-w-md leading-relaxed">
+                    Welcome back to the Sanctuary. Take a deep breath, leave the academic pressure at the door, and begin your reflection.
+                </p>
+            </div>
+
+            <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-high">
+                <img
+                    class="w-full h-full object-cover opacity-80 mix-blend-multiply"
+                    alt="minimalist wooden desk with a ceramic mug, a closed notebook, and a small green plant in soft morning sunlight"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHyXcI3q5ls9XxKZ9I8RNfFQQzrK4MWAUqvOtgof64HqiUDUaujE_XwUDz2s1_pGXcQYMx55rgPTFEevmyqP07T7rFFd_a5kA6y34Eae5ri1LNYQ6RjeFi2_PPb3YUyNHARE-przJwiiXogNmpP5KIj21dIOAegwXO7OYVoWIzvH_wHK9kXZu82T_2yxiWFe2AkM-qnKUYOWuE6KLEfzG6RxehzGFj05-LchoNbtMCaGiks0Kc8q-CDnHoA1fzFGEhmmhAxDp3oww"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent"></div>
+                <div class="absolute bottom-6 left-6 right-6 p-6 bg-surface-container-lowest/80 backdrop-blur-md rounded-lg rounded-tr-sm">
+                    <p class="font-body italic text-primary leading-snug">
+                        "The beautiful thing about learning is that no one can take it away from you."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="col-span-1 md:col-span-6 flex justify-center">
+            <div class="w-full max-w-md bg-surface-container-low p-8 md:p-12 rounded-xl shadow-sm border border-outline-variant/15 flex flex-col gap-8">
+                <div class="text-center md:text-left">
+                    <h2 class="font-headline text-3xl font-bold text-on-surface tracking-tight">Sign In</h2>
+                    <p class="text-on-surface-variant mt-2 italic">You are doing enough.</p>
+                </div>
+
+                <!-- Django Messages -->
+                {% if messages %}
+                    <div class="space-y-3">
+                        {% for message in messages %}
+                            <div class="rounded-2xl px-4 py-3 text-sm font-medium
+                                {% if message.tags == 'error' %}
+                                    bg-red-100 text-red-700 border border-red-200
+                                {% elif message.tags == 'success' %}
+                                    bg-green-100 text-green-700 border border-green-200
+                                {% else %}
+                                    bg-gray-100 text-gray-700 border border-gray-200
+                                {% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'login' %}" class="space-y-6">
+                    {% csrf_token %}
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-on-surface-variant px-1" for="email">
+                            Email Address
+                        </label>
+                        <input
+                            class="w-full px-6 py-4 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline-variant"
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="student@university.edu"
+                            value="{{ request.POST.email|default:'' }}"
+                            required
+                        />
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center px-1">
+                            <label class="text-sm font-semibold text-on-surface-variant" for="password">
+                                Password
+                            </label>
+                            <a class="text-xs text-primary font-medium hover:underline" href="{% url 'forgot_password' %}">
+                                Forgot Password?
+                            </a>
+                        </div>
+                        <input
+                            class="w-full px-6 py-4 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary-container focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline-variant"
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                            required
+                        />
+                    </div>
+
+                    <button class="w-full py-4 bg-primary text-on-primary font-bold rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2" type="submit">
+                        Log In
+                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    </button>
+                </form>
+
+                <div class="pt-4 flex flex-col items-center gap-4">
+                    <div class="w-full h-[1px] bg-outline-variant/20"></div>
+                    <p class="text-on-surface-variant text-sm">
+                        New to the Sanctuary?
+                        <a class="text-primary font-bold hover:underline ml-1" href="{% url 'register' %}">
+                            Join the Sanctuary
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer class="w-full py-12 bg-[#fbf9f5] dark:bg-stone-950 flex flex-col items-center gap-4 px-8">
+    <p class="font-['Manrope'] text-sm italic text-[#4f645b] dark:text-[#d1e8dd]">
+        © 2024 Study Reflection Coach. You are doing enough.
+    </p>
+    <div class="flex gap-6">
+        <a class="font-['Manrope'] text-sm italic text-[#5e605b] dark:text-stone-400 hover:text-[#4f645b] transition-colors" href="#">Privacy</a>
+        <a class="font-['Manrope'] text-sm italic text-[#5e605b] dark:text-stone-400 hover:text-[#4f645b] transition-colors" href="#">Terms</a>
+        <a class="font-['Manrope'] text-sm italic text-[#5e605b] dark:text-stone-400 hover:text-[#4f645b] transition-colors" href="#">Support</a>
+    </div>
+</footer>
+
+</body>
+</html>

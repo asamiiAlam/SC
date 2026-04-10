@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — Study Reflection Coach{% endblock %}
+
+{% block extra_styles %}
+.stat-ring {
+    transform: rotate(-90deg);
+    transform-origin: center;
+}
+.ring-fill {
+    stroke-dasharray: 188;
+    stroke-dashoffset: {{ wellness_offset }};
+    transition: stroke-dashoffset 1.2s cubic-bezier(.16,1,.3,1);
+}
+.checkin-note-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+{% endblock %}
+
+{% block content %}
+<main class="pt-28 pb-20 px-6 md:px-12 max-w-screen-2xl mx-auto">
+
+    <!-- Greeting -->
+    <div class="mb-10">
+        <h1 class="font-headline text-3xl font-bold text-on-surface tracking-tight">
+            Welcome back, {{ request.user.first_name|default:request.user.username }} 👋
+        </h1>
+        <p class="text-on-surface-variant text-sm mt-1 font-body">Here's your wellbeing overview for today.</p>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+        <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold tracking-widest text-on-surface-variant uppercase font-label">Avg Stress</span>
+                <span class="material-symbols-outlined text-[#a83836] text-[20px]">sentiment_stressed</span>
+            </div>
+            <div class="font-headline text-4xl font-bold text-on-surface leading-none">{{ avg_stress|floatformat:0 }}</div>
+            <div class="text-xs text-on-surface-variant font-body">out of 100 · this week</div>
+            <div class="h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
+                <div class="h-full rounded-full bg-[#a83836]/70" style="width:{{ avg_stress|floatformat:0 }}%"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold tracking-widest text-on-surface-variant uppercase font-label">Study Hours</span>
+                <span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
+            </div>
+            <div class="font-headline text-4xl font-bold text-on-surface leading-none">{{ avg_study_hours|floatformat:1 }}<span class="text-xl font-medium text-on-surface-variant">h</span></div>
+            <div class="text-xs text-on-surface-variant font-body">avg per day · this week</div>
+            <div class="h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
+                <div class="h-full rounded-full bg-primary/60" style="width:{{ avg_study_hours_pct }}%"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold tracking-widest text-on-surface-variant uppercase font-label">Deadlines</span>
+                <span class="material-symbols-outlined text-[#6a5e46] text-[20px]">event_upcoming</span>
+            </div>
+            <div class="font-headline text-4xl font-bold text-on-surface leading-none">{{ upcoming_deadlines_count }}</div>
+            <div class="text-xs text-on-surface-variant font-body">in the next 7 days</div>
+            <div class="flex gap-1 mt-1">
+                {% for d in upcoming_deadlines|slice:":5" %}
+                <div class="h-1.5 flex-1 rounded-full
+                    {% if d.days_left <= 2 %}bg-[#a83836]/70
+                    {% elif d.days_left <= 5 %}bg-tertiary/60
+                    {% else %}bg-primary/40{% endif %}">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold tracking-widest text-on-surface-variant uppercase font-label">Check-ins</span>
+                <span class="material-symbols-outlined text-primary text-[20px]">task_alt</span>
+            </div>
+            <div class="font-headline text-4xl font-bold text-on-surface leading-none">{{ checkins_this_week }}<span class="text-xl font-medium text-on-surface-variant">/7</span></div>
+            <div class="text-xs text-on-surface-variant font-body">days logged this week</div>
+            <div class="flex gap-1 mt-1">
+                {% for i in week_dots %}
+                <div class="h-1.5 flex-1 rounded-full {% if forloop.counter <= checkins_this_week %}bg-primary{% else %}bg-surface-container-highest{% endif %}"></div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Middle Row: Weekly Insight + Stress Bars -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+
+        <!-- Weekly Insight -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-surface-container-highest/50 p-7">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h2 class="font-headline text-lg font-bold text-on-surface">Weekly Insight</h2>
+                    {% if latest_week %}
+                    <p class="text-xs text-on-surface-variant mt-0.5 font-body">{{ latest_week.week_start }} — {{ latest_week.week_end }}</p>
+                    {% endif %}
+                </div>
+                <a href="{% url 'reflections:weekly_reflection' %}" class="text-xs text-primary font-semibold hover:underline font-label">View all →</a>
+            </div>
+
+            {% if latest_week %}
+            <div class="flex items-start gap-6 mb-6">
+                <!-- Wellness Ring -->
+                <div class="flex-shrink-0 flex flex-col items-center gap-1">
+                    <div class="relative w-20 h-20">
+                        <svg class="stat-ring w-full h-full" viewBox="0 0 70 70">
+                            <circle cx="35" cy="35" r="30" fill="none" stroke="#e3e3dc" stroke-width="6"/>
+                            <circle cx="35" cy="35" r="30" fill="none" stroke="#4f645b" stroke-width="6"
+                                    stroke-linecap="round" class="ring-fill"/>
+                        </svg>
+                        <span class="absolute inset-0 flex items-center justify-center font-headline font-bold text-lg text-on-surface">
+                            {{ latest_week.ml_wellness_score|floatformat:0 }}
+                        </span>
+                    </div>
+                    <span class="text-[10px] tracking-widest uppercase text-on-surface-variant font-label">Wellness</span>
+                </div>
+
+                <!-- Risk + Trend + Recommendation -->
+                <div class="flex-1">
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold font-label
+                            {% if latest_week.ml_burnout_risk == 'low' %}bg-primary-container text-on-primary-container
+                            {% elif latest_week.ml_burnout_risk == 'moderate' %}bg-tertiary-container text-on-tertiary-container
+                            {% else %}bg-error-container text-on-error-container{% endif %}">
+                            <span class="w-1.5 h-1.5 rounded-full
+                                {% if latest_week.ml_burnout_risk == 'low' %}bg-primary
+                                {% elif latest_week.ml_burnout_risk == 'moderate' %}bg-tertiary
+                                {% else %}bg-error{% endif %}">
+                            </span>
+                            {{ latest_week.ml_burnout_risk|capfirst }} Burnout Risk
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-secondary-container text-on-secondary-container font-label">
+                            <span class="material-symbols-outlined text-[14px]">
+                                {% if latest_week.ml_stress_trend == 'worsening' %}trending_up
+                                {% elif latest_week.ml_stress_trend == 'improving' %}trending_down
+                                {% else %}trending_flat{% endif %}
+                            </span>
+                            {{ latest_week.ml_stress_trend|capfirst }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-on-surface font-body leading-relaxed">{{ latest_week.ml_recommendation }}</p>
+                </div>
+            </div>
+
+            {% if focus_areas %}
+            <div>
+                <p class="text-[10px] tracking-widest uppercase text-on-surface-variant font-label mb-2">Focus Areas</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for area in focus_areas %}
+                    <span class="px-3 py-1.5 bg-surface-container rounded-full text-xs text-on-surface-variant font-body border border-surface-container-highest/60">
+                        {{ area }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                <span class="material-symbols-outlined text-5xl text-on-surface-variant/40">insights</span>
+                <p class="text-sm text-on-surface-variant font-body">No weekly reflection yet.<br>Complete a few daily check-ins to get your first insight.</p>
+                <a href="{% url 'reflections:daily_checkin' %}" class="mt-2 px-5 py-2 bg-primary-container text-on-primary-container rounded-full text-sm font-semibold font-label hover:bg-primary-fixed transition-colors">
+                    Start Check-in
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Stress Bar Chart -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-surface-container-highest/50 p-7 flex flex-col">
+            <h2 class="font-headline text-lg font-bold text-on-surface mb-1">Stress This Week</h2>
+            <p class="text-xs text-on-surface-variant font-body mb-6">Daily stress levels (0–100)</p>
+
+            <div class="flex items-end gap-3 flex-1" style="min-height:160px;">
+                {% if recent_checkins %}
+                    {% for c in recent_checkins %}
+                    <div class="flex-1 flex flex-col items-center gap-2">
+                        <span class="text-[10px] font-semibold font-label
+                            {% if c.stress_level >= 70 %}text-[#a83836]
+                            {% elif c.stress_level >= 40 %}text-tertiary
+                            {% else %}text-primary{% endif %}">
+                            {{ c.stress_level }}
+                        </span>
+                        <div class="w-full bg-surface-container-highest rounded-t-lg flex flex-col justify-end overflow-hidden" style="height:120px;">
+                            <div class="w-full rounded-t-lg
+                                {% if c.stress_level >= 70 %}bg-[#a83836]/70
+                                {% elif c.stress_level >= 40 %}bg-tertiary/60
+                                {% else %}bg-primary/60{% endif %}"
+                                style="height:{{ c.stress_pct }}%;">
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-on-surface-variant font-label">{{ c.created_at|date:"D" }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="flex-1 flex flex-col items-center justify-center text-center gap-2">
+                    <span class="material-symbols-outlined text-4xl text-on-surface-variant/30">bar_chart</span>
+                    <p class="text-sm text-on-surface-variant font-body">No check-ins yet this week.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Row: Deadlines + Recent Check-ins -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Upcoming Deadlines -->
+        <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-7">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-headline text-lg font-bold text-on-surface">Upcoming Deadlines</h2>
+                <a href="{% url 'reflections:daily_checkin' %}" class="text-xs text-primary font-semibold hover:underline font-label">+ Add →</a>
+            </div>
+
+            {% if upcoming_deadlines %}
+            <div class="flex flex-col divide-y divide-surface-container-highest/50">
+                {% for d in upcoming_deadlines %}
+                <div class="flex items-center gap-4 py-3.5">
+                    <div class="w-2 h-2 rounded-full flex-shrink-0
+                        {% if d.days_left <= 2 %}bg-[#a83836]
+                        {% elif d.days_left <= 5 %}bg-tertiary
+                        {% else %}bg-primary{% endif %}">
+                    </div>
+                    <span class="flex-1 text-sm text-on-surface font-body">{{ d.title }}</span>
+                    <span class="text-xs font-semibold font-label px-2.5 py-1 rounded-full
+                        {% if d.days_left == 0 %}bg-error-container text-on-error-container
+                        {% elif d.days_left <= 2 %}bg-[#a83836]/10 text-[#a83836]
+                        {% elif d.days_left <= 5 %}bg-tertiary-container text-on-tertiary-container
+                        {% else %}bg-primary-container text-on-primary-container{% endif %}">
+                        {% if d.days_left == 0 %}Today
+                        {% elif d.days_left == 1 %}Tomorrow
+                        {% else %}{{ d.days_left }}d left{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-10 gap-2 text-center">
+                <span class="material-symbols-outlined text-4xl text-on-surface-variant/30">event_available</span>
+                <p class="text-sm text-on-surface-variant font-body">No deadlines in the next 7 days 🎉</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Check-ins -->
+        <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-7">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-headline text-lg font-bold text-on-surface">Recent Check-ins</h2>
+                <a href="{% url 'reflections:checkin_history' %}" class="text-xs text-primary font-semibold hover:underline font-label">See all →</a>
+            </div>
+
+            {% if recent_checkins %}
+            <div class="flex flex-col divide-y divide-surface-container-highest/50">
+                {% for c in recent_checkins %}
+                <div class="flex items-center gap-4 py-3.5">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 font-headline font-bold text-sm
+                        {% if c.stress_level >= 70 %}bg-[#a83836]/10 text-[#a83836]
+                        {% elif c.stress_level >= 40 %}bg-tertiary-container text-on-tertiary-container
+                        {% else %}bg-primary-container text-on-primary-container{% endif %}">
+                        {{ c.stress_level }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-on-surface font-body checkin-note-clamp">{{ c.reflection_note }}</p>
+                        <p class="text-xs text-on-surface-variant mt-0.5 font-label">{{ c.created_at|date:"M d, Y" }} · {{ c.study_time }} hrs</p>
+                    </div>
+                    <span class="text-xs font-semibold font-label px-2.5 py-1 rounded-full flex-shrink-0
+                        {% if c.confidence_level == 'high' %}bg-primary-container text-on-primary-container
+                        {% elif c.confidence_level == 'medium' %}bg-tertiary-container text-on-tertiary-container
+                        {% else %}bg-surface-container text-on-surface-variant{% endif %}">
+                        {{ c.confidence_level|capfirst }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                <span class="material-symbols-outlined text-4xl text-on-surface-variant/30">edit_note</span>
+                <p class="text-sm text-on-surface-variant font-body">No check-ins yet.</p>
+                <a href="{% url 'reflections:daily_checkin' %}" class="px-5 py-2 bg-primary-container text-on-primary-container rounded-full text-sm font-semibold font-label hover:bg-primary-fixed transition-colors">
+                    Start today →
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</main>
+{% endblock %}
