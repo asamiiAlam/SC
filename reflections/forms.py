@@ -1,5 +1,6 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import modelformset_factory
+from django.utils import timezone
 
 from .models import DailyCheckIn, Deadline, STUDY_TIME_CHOICES, CONFIDENCE_CHOICES
 
@@ -70,25 +71,29 @@ class DeadlineForm(forms.ModelForm):
         model = Deadline
         fields = ['title', 'due_date']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['due_date'].widget.attrs['min'] = timezone.localdate().isoformat()
+
     def clean(self):
         cleaned_data = super().clean()
         title = cleaned_data.get('title')
         due_date = cleaned_data.get('due_date')
+        today = timezone.localdate()
 
         if title and not due_date:
             self.add_error('due_date', 'Please select a due date.')
         if due_date and not title:
             self.add_error('title', 'Please enter a deadline title.')
+        if due_date and due_date < today:
+            self.add_error('due_date', 'Due date cannot be earlier than today.')
 
         return cleaned_data
 
 
-DeadlineFormSet = inlineformset_factory(
-    DailyCheckIn,
+DeadlineFormSet = modelformset_factory(
     Deadline,
     form=DeadlineForm,
     extra=1,
     can_delete=False,
-    min_num=0,
-    validate_min=False,
 )

@@ -26,7 +26,7 @@ def login(request):
             if user is not None:
                 auth_login(request, user)
                 messages.success(request, 'You have successfully logged in.')
-                return redirect('profile') 
+                return redirect('reflections:dashboard') 
             else:
                messages.error(request, 'Invalid email or password.')
                return redirect('login')
@@ -65,7 +65,7 @@ def register(request):
 def logout(request):
     auth.logout(request)
     messages.success(request, 'You have successfully logged out.')
-    return redirect('home')
+    return redirect('login')
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))

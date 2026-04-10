@@ -19,11 +19,10 @@ from .stress_ml import predict_weekly_reflection
 # ─────────────────────────────────────────────────────────────────────────────
 
 STUDY_TIME_HOURS = {
-    '0to1': 0.5,
+    'lt1': 0.5,
     '1to2': 1.5,
     '2to4': 3.0,
-    '4to6': 5.0,
-    '6plus': 7.0,
+    'gt4': 5.0,
 }
 
 
@@ -40,7 +39,7 @@ def _get_today_checkin(user):
 
 def _get_week_bounds(ref_date=None):
     if ref_date is None:
-        ref_date = date.today()
+        ref_date = timezone.localdate()
     monday = ref_date - timedelta(days=ref_date.weekday())
     sunday = monday + timedelta(days=6)
     return monday, sunday
@@ -75,31 +74,164 @@ def _aggregate_checkins(checkins):
     }
 
 
+def _parse_focus_areas(weekly):
+    if not weekly or not weekly.ml_focus_areas:
+        return []
+
+    if isinstance(weekly.ml_focus_areas, list):
+        return weekly.ml_focus_areas
+
+    try:
+        areas = json.loads(weekly.ml_focus_areas)
+        return areas if isinstance(areas, list) else []
+    except (json.JSONDecodeError, TypeError):
+        return []
+
+
+def _wellness_offset(score):
+    try:
+        pct = max(0.0, min(float(score), 100.0)) / 100.0
+    except (TypeError, ValueError):
+        pct = 0.0
+    return round(188.0 * (1 - pct), 2)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # dashboard
 # ─────────────────────────────────────────────────────────────────────────────
 
 @login_required
 def dashboard(request):
-    today_checkin = _get_today_checkin(request.user)
+    user = request.user
+    today = timezone.localdate()
+    week_start, week_end = _get_week_bounds(today)
+    next_7 = today + timedelta(days=7)
 
-    recent_checkins = (
-        DailyCheckIn.objects
-        .filter(user=request.user)
-        .prefetch_related('deadlines')
-        .order_by('-created_at')[:7]
+    today_checkin = _get_today_checkin(user)
+
+    latest_week = (
+        WeeklyReflection.objects
+        .filter(user=user)
+        .order_by('-week_start')
+        .first()
     )
 
-    upcoming_deadlines = (
+    # Weekly reflection stats
+    avg_stress = latest_week.avg_stress_level if latest_week else 0
+    avg_study_hours = latest_week.avg_study_hours if latest_week else 0
+    avg_study_hours_pct = (
+        max(0, min(round((float(avg_study_hours) / 12) * 100), 100))
+        if avg_study_hours else 0
+    )
+
+    # Upcoming deadlines
+    deadline_qs = (
         Deadline.objects
-        .filter(user=request.user, due_date__gte=timezone.localdate())
-        .order_by('due_date')[:5]
+        .filter(user=user, due_date__gte=today, due_date__lte=next_7)
+        .order_by('due_date')
     )
+    upcoming_deadlines_count = deadline_qs.count()
+
+    upcoming_deadlines = [
+        {
+            'title': d.title,
+            'due_date': d.due_date,
+            'days_left': (d.due_date - today).days,
+        }
+        for d in deadline_qs
+    ]
+
+    # Current week's actual check-ins
+    weekly_checkins_qs = (
+        DailyCheckIn.objects
+        .filter(
+            user=user,
+            created_at__date__gte=week_start,
+            created_at__date__lte=week_end,
+        )
+        .order_by('created_at')
+    )
+
+    checkins_this_week = min(weekly_checkins_qs.count(), 7)
+
+    # Map by date so dashboard can always show Mon-Sun
+    checkins_by_date = {}
+    for c in weekly_checkins_qs:
+        checkins_by_date[c.created_at.date()] = c
+
+    recent_checkins = []
+    for i in range(7):
+        day = week_start + timedelta(days=i)
+        checkin = checkins_by_date.get(day)
+
+        if checkin:
+            stress_level = int(checkin.stress_level)
+            stress_pct = min(max(stress_level, 0), 100)
+            has_data = True
+            reflection_note = checkin.reflection_note
+            study_time_display = checkin.get_study_time_display()
+            confidence_display = checkin.get_confidence_level_display()
+            confidence_level = checkin.confidence_level
+            created_at = checkin.created_at
+        else:
+            stress_level = 0
+            stress_pct = 0
+            has_data = False
+            reflection_note = ''
+            study_time_display = ''
+            confidence_display = ''
+            confidence_level = ''
+            created_at = None
+
+        recent_checkins.append({
+            'day_label': day.strftime('%a'),
+            'date': day,
+            'stress_level': stress_level,
+            'stress_pct': stress_pct,
+            'has_data': has_data,
+            'reflection_note': reflection_note,
+            'study_time_display': study_time_display,
+            'confidence_display': confidence_display,
+            'confidence_level': confidence_level,
+            'created_at': created_at,
+        })
+
+    # Fallback weekly averages if no weekly reflection yet
+    real_checkins = [c for c in recent_checkins if c['has_data']]
+    if not latest_week and real_checkins:
+        avg_stress = round(
+            sum(c['stress_level'] for c in real_checkins) / len(real_checkins), 2
+        )
+
+        study_hours_list = [
+            STUDY_TIME_HOURS.get(checkins_by_date[c['date']].study_time, 2.0)
+            for c in real_checkins
+        ]
+        avg_study_hours = round(sum(study_hours_list) / len(study_hours_list), 2)
+        avg_study_hours_pct = max(
+            0, min(round((float(avg_study_hours) / 12) * 100), 100)
+        )
+
+    week_dots = range(1, 8)
+
+    wellness_offset = _wellness_offset(
+        latest_week.ml_wellness_score if latest_week else 0
+    )
+    focus_areas = _parse_focus_areas(latest_week)
 
     context = {
         'today_checkin': today_checkin,
         'recent_checkins': recent_checkins,
         'upcoming_deadlines': upcoming_deadlines,
+        'avg_stress': avg_stress,
+        'avg_study_hours': avg_study_hours,
+        'avg_study_hours_pct': avg_study_hours_pct,
+        'upcoming_deadlines_count': upcoming_deadlines_count,
+        'checkins_this_week': checkins_this_week,
+        'week_dots': week_dots,
+        'latest_week': latest_week,
+        'focus_areas': focus_areas,
+        'wellness_offset': wellness_offset,
     }
     return render(request, 'reflections/dashboard.html', context)
 
@@ -115,55 +247,81 @@ def daily_checkin(request):
     if request.method == 'POST':
         action = request.POST.get('action')
 
+        # -------------------------------------------------
+        # Add deadline(s)
+        # -------------------------------------------------
         if action == 'add_deadline':
             if not today_checkin:
-                checkin_form = DailyCheckInForm(request.POST)
-                if not checkin_form.is_valid():
-                    deadline_formset = DeadlineFormSet(request.POST, prefix='deadlines')
+                form = DailyCheckInForm(request.POST)
+                deadline_formset = DeadlineFormSet(
+                    request.POST,
+                    queryset=Deadline.objects.none(),
+                    prefix='deadlines',
+                )
+
+                if not form.is_valid():
                     messages.error(request, 'Please complete your check-in fields before adding a deadline.')
-                    context = {
-                        'form': checkin_form,
+                    return render(request, 'reflections/daily_checkin.html', {
+                        'form': form,
                         'deadline_formset': deadline_formset,
                         'today_checkin': None,
-                    }
-                    return render(request, 'reflections/daily_checkin.html', context)
+                    })
 
-                today_checkin = checkin_form.save(commit=False)
+                today_checkin = form.save(commit=False)
                 today_checkin.user = request.user
                 today_checkin.save()
 
             deadline_formset = DeadlineFormSet(
                 request.POST,
-                instance=today_checkin,
+                queryset=Deadline.objects.none(),
                 prefix='deadlines',
             )
 
             if deadline_formset.is_valid():
                 saved = 0
-                for dl_form in deadline_formset:
-                    cd = dl_form.cleaned_data
-                    if cd.get('title') and cd.get('due_date') and not dl_form.instance.pk:
-                        dl = dl_form.save(commit=False)
-                        dl.user = request.user
-                        dl.checkin = today_checkin
-                        dl.save()
+
+                for deadline_form in deadline_formset:
+                    cd = getattr(deadline_form, 'cleaned_data', None)
+                    if not cd:
+                        continue
+
+                    title = cd.get('title')
+                    due_date = cd.get('due_date')
+
+                    if title and due_date:
+                        deadline = deadline_form.save(commit=False)
+                        deadline.user = request.user
+                        deadline.checkin = today_checkin
+                        deadline.save()
                         saved += 1
 
                 if saved:
                     messages.success(request, f'{saved} deadline(s) saved.')
                 else:
                     messages.warning(request, 'Fill in a title and date to save a deadline.')
-            else:
-                messages.error(request, 'Please fix the errors in your deadlines.')
 
-            return redirect('reflections:daily_checkin')
+                return redirect('reflections:daily_checkin')
 
+            messages.error(request, 'Please fix the errors in your deadlines.')
+            return render(request, 'reflections/daily_checkin.html', {
+                'form': DailyCheckInForm(instance=today_checkin),
+                'deadline_formset': deadline_formset,
+                'today_checkin': today_checkin,
+            })
+
+        # -------------------------------------------------
+        # Submit full daily check-in
+        # -------------------------------------------------
         if today_checkin:
             messages.warning(request, 'You have already checked in today.')
             return redirect('reflections:daily_checkin')
 
         form = DailyCheckInForm(request.POST)
-        deadline_formset = DeadlineFormSet(request.POST, prefix='deadlines')
+        deadline_formset = DeadlineFormSet(
+            request.POST,
+            queryset=Deadline.objects.none(),
+            prefix='deadlines',
+        )
 
         if form.is_valid() and deadline_formset.is_valid():
             checkin = form.save(commit=False)
@@ -171,12 +329,18 @@ def daily_checkin(request):
             checkin.save()
 
             for deadline_form in deadline_formset:
-                cd = deadline_form.cleaned_data
-                if cd.get('title') and cd.get('due_date'):
-                    dl = deadline_form.save(commit=False)
-                    dl.user = request.user
-                    dl.checkin = checkin
-                    dl.save()
+                cd = getattr(deadline_form, 'cleaned_data', None)
+                if not cd:
+                    continue
+
+                title = cd.get('title')
+                due_date = cd.get('due_date')
+
+                if title and due_date:
+                    deadline = deadline_form.save(commit=False)
+                    deadline.user = request.user
+                    deadline.checkin = checkin
+                    deadline.save()
 
             messages.success(request, 'Check-in saved! Great job showing up for yourself today.')
             return redirect('reflections:checkin_success')
@@ -184,12 +348,11 @@ def daily_checkin(request):
         messages.error(request, 'Please fix the errors below.')
 
     else:
-        if today_checkin:
-            form = DailyCheckInForm(instance=today_checkin)
-            deadline_formset = DeadlineFormSet(instance=today_checkin, prefix='deadlines')
-        else:
-            form = DailyCheckInForm()
-            deadline_formset = DeadlineFormSet(prefix='deadlines')
+        form = DailyCheckInForm(instance=today_checkin) if today_checkin else DailyCheckInForm()
+        deadline_formset = DeadlineFormSet(
+            queryset=Deadline.objects.none(),
+            prefix='deadlines',
+        )
 
     context = {
         'form': form,
@@ -236,7 +399,7 @@ def checkin_history(request):
 
 @login_required
 def weekly_reflection(request, offset=0):
-    today = date.today()
+    today = timezone.localdate()
     offset = int(offset)
     ref_date = today - timedelta(weeks=offset)
     week_start, week_end = _get_week_bounds(ref_date)
@@ -374,5 +537,3 @@ def weekly_reflection_api(request):
 
     result = predict_weekly_reflection(stats)
     return JsonResponse(result)
-def dashboard(request):
-    return render(request, 'dashboard.html')
