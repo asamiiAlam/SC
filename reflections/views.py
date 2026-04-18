@@ -554,4 +554,22 @@ def profile(request):
      else:
         form = UpdateProfileForm(instance=request.user)
         return render(request, 'reflections/profile.html', {'form': form})
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        if not request.user.check_password(old_password):
+            messages.error(request, 'Old password is incorrect.')
+        elif new_password != confirm_password:
+            messages.error(request, 'New password and confirmation do not match.')
+     
+        else:
+            request.user.set_password(new_password)
+            request.user.save()
+            messages.success(request, 'Your password has been changed. Please log in again.')
+            return redirect('login')
+    
+    return render(request, 'reflections/change_password.html')
     

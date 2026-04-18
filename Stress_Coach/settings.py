@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'reflections',
     'crispy_forms',
     'crispy_bootstrap5',
+    'watch',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

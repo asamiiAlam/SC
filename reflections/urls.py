@@ -13,5 +13,6 @@ urlpatterns = [
     path('weekly/api/analyze/',views.weekly_reflection_api, name='weekly_reflection_api'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile/', views.profile, name='profile'),
+    path('change-password/', views.change_password, name='change_password'),
    
 ]

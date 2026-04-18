@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Wearable Insights{% endblock %}
+
+{% block content %}
+<main class="min-h-screen pt-32 pb-20 px-6 md:px-12 bg-background">
+    <div class="max-w-6xl mx-auto">
+        <div class="mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-primary font-headline">
+                Wearable Insights
+            </h1>
+            <p class="text-on-surface-variant mt-2 text-lg">
+                Your synced watch and health data
+            </p>
+        </div>
+
+        {% if connection %}
+        <div class="mb-8 rounded-3xl bg-surface-container p-6 border border-surface-container-highest">
+            <p class="text-sm text-on-surface-variant">
+                <span class="font-bold text-on-surface">Connected Platform:</span> {{ connection.get_platform_display }}
+            </p>
+            <p class="text-sm text-on-surface-variant mt-1">
+                <span class="font-bold text-on-surface">Last Synced:</span> {{ connection.last_synced_at|date:"F d, Y h:i A" }}
+            </p>
+        </div>
+        {% else %}
+        <div class="mb-8 rounded-3xl bg-tertiary-container/30 p-6 border border-surface-container-highest">
+            <p class="text-on-surface">
+                No wearable device connected yet.
+            </p>
+        </div>
+        {% endif %}
+
+        {% if latest_summary %}
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+            <div class="rounded-3xl bg-surface-container-lowest p-6 shadow-sm border border-surface-container-highest">
+                <p class="text-sm text-on-surface-variant">Steps</p>
+                <h3 class="text-3xl font-bold text-primary mt-2">{{ latest_summary.steps }}</h3>
+            </div>
+
+            <div class="rounded-3xl bg-surface-container-lowest p-6 shadow-sm border border-surface-container-highest">
+                <p class="text-sm text-on-surface-variant">Sleep</p>
+                <h3 class="text-3xl font-bold text-primary mt-2">{{ latest_summary.sleep_minutes }} min</h3>
+            </div>
+
+            <div class="rounded-3xl bg-surface-container-lowest p-6 shadow-sm border border-surface-container-highest">
+                <p class="text-sm text-on-surface-variant">Avg Heart Rate</p>
+                <h3 class="text-3xl font-bold text-primary mt-2">{{ latest_summary.avg_heart_rate|default:"--" }}</h3>
+            </div>
+
+            <div class="rounded-3xl bg-surface-container-lowest p-6 shadow-sm border border-surface-container-highest">
+                <p class="text-sm text-on-surface-variant">SpO2</p>
+                <h3 class="text-3xl font-bold text-primary mt-2">{{ latest_summary.spo2|default:"--" }}</h3>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="rounded-3xl bg-surface-container-lowest p-8 shadow-sm border border-surface-container-highest">
+            <h2 class="text-2xl font-bold text-primary mb-6">Last 7 Days</h2>
+
+            {% if daily_summaries %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-surface-container-highest">
+                            <th class="py-3 text-on-surface-variant">Date</th>
+                            <th class="py-3 text-on-surface-variant">Steps</th>
+                            <th class="py-3 text-on-surface-variant">Sleep</th>
+                            <th class="py-3 text-on-surface-variant">Heart Rate</th>
+                            <th class="py-3 text-on-surface-variant">Calories</th>
+                            <th class="py-3 text-on-surface-variant">Distance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in daily_summaries %}
+                        <tr class="border-b border-surface-container-highest/40">
+                            <td class="py-4">{{ item.sample_date|date:"F d, Y" }}</td>
+                            <td class="py-4">{{ item.steps }}</td>
+                            <td class="py-4">{{ item.sleep_minutes|default:"--" }} min</td>
+                            <td class="py-4">{{ item.avg_heart_rate|default:"--" }}</td>
+                            <td class="py-4">{{ item.calories_kcal|default:"--" }}</td>
+                            <td class="py-4">{{ item.distance_km|default:"--" }} km</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-on-surface-variant">No wearable data available yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}

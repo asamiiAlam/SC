@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('Accounts.urls')),
     path('reflections/', include('reflections.urls')),
+    path('watch/', include('watch.urls')),
     path('',views.home, name='home')
  
    
