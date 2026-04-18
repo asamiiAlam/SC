@@ -4,8 +4,6 @@
 {% block title %}Weekly Reflection — Stress Coach{% endblock %}
 
 {% block extra_css %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ─── TOKENS ─────────────────────────────────────────────── */
   :root {
@@ -48,7 +46,6 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Outfit', sans-serif;
     background: var(--surface);
     color: var(--ink);
     min-height: 100vh;
@@ -73,18 +70,22 @@
     animation: fadeUp .5s var(--ease) both;
   }
   .week-title h1 {
-    font-family: 'Lora', serif;
-    font-size: 2.6rem; font-weight: 400; color: var(--ink);
-    line-height: 1.1; letter-spacing: -.02em;
-  }
-  .week-title span { font-size: 13px; color: var(--ink-muted); margin-top: 5px; display: block; }
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #63766F;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+  .week-title span { font-size: 13px; color: var(--ink-muted); margin-top: 5px; display: block; font-family: 'Manrope', sans-serif; font-weight: 500; }
   .week-nav { display: flex; gap: .4rem; flex-wrap: wrap; }
   .week-nav a {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 7px 18px; border: 1px solid var(--border-md); border-radius: 999px;
-    font-size: 13px; font-weight: 500; color: var(--ink-muted);
+    font-size: 13px; font-weight: 600; color: var(--ink-muted);
     text-decoration: none; background: var(--card);
     transition: all .22s var(--ease); box-shadow: var(--shadow-sm);
+    font-family: 'Manrope', sans-serif;
   }
   .week-nav a:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); transform: translateY(-1px); box-shadow: var(--shadow); }
   .week-nav a.disabled { opacity: .35; pointer-events: none; }
@@ -139,9 +140,9 @@
   .stat-card:nth-child(4) .stat-value { color: var(--c-dead-val); }
   .stat-card:nth-child(4) .stat-label { color: var(--c-dead-lbl); }
 
-  .stat-label { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .6rem; }
-  .stat-value { font-family: 'Lora', serif; font-size: 2.7rem; line-height: 1; margin-bottom: .25rem; }
-  .stat-sub   { font-size: 11.5px; color: var(--ink-muted); }
+  .stat-label { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .6rem; font-family: 'Manrope', sans-serif; }
+  .stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.7rem; line-height: 1; margin-bottom: .25rem; font-weight: 700; }
+  .stat-sub   { font-size: 11.5px; color: var(--ink-muted); font-family: 'Manrope', sans-serif; }
 
   /* ─── SECTION HEADING ────────────────────────────────────── */
   .section-heading {
@@ -149,6 +150,7 @@
     font-size: 11px; font-weight: 700; letter-spacing: .12em;
     text-transform: uppercase; color: var(--ink-faint);
     margin: 2.25rem 0 1.1rem;
+    font-family: 'Manrope', sans-serif;
   }
   .section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
@@ -168,6 +170,7 @@
   .card-label {
     font-size: 10.5px; font-weight: 700; letter-spacing: .1em;
     text-transform: uppercase; color: var(--ink-faint); margin-bottom: 1.1rem;
+    font-family: 'Manrope', sans-serif;
   }
 
   /* ─── CHARTS ─────────────────────────────────────────────── */
@@ -186,8 +189,8 @@
   .stress-low  { background: var(--low-lt);  color: var(--low);  border: 1.5px solid var(--low-border); }
   .stress-med  { background: var(--mod-lt);  color: var(--mod);  border: 1.5px solid var(--mod-border); }
   .stress-high { background: var(--high-lt); color: var(--high); border: 1.5px solid var(--high-border); }
-  .checkin-text p     { font-size: 13.5px; color: var(--ink); line-height: 1.55; }
-  .checkin-text small { font-size: 12px; color: var(--ink-muted); margin-top: 3px; display: block; }
+  .checkin-text p     { font-size: 13.5px; color: var(--ink); line-height: 1.55; font-family: 'Manrope', sans-serif; }
+  .checkin-text small { font-size: 12px; color: var(--ink-muted); margin-top: 3px; display: block; font-family: 'Manrope', sans-serif; }
 
   /* ─── DEADLINE PILLS ─────────────────────────────────────── */
   .deadline-pill {
@@ -196,11 +199,12 @@
     border-radius: 999px; padding: 5px 13px;
     font-size: 12px; font-weight: 600; margin: 3px;
     border: 1.5px solid var(--high-border);
+    font-family: 'Manrope', sans-serif;
   }
   .deadline-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--high); flex-shrink: 0; }
 
   /* ─── CONFIDENCE DISPLAY ─────────────────────────────────── */
-  .confidence-display { font-size: 1.65rem; font-family: 'Lora', serif; text-transform: capitalize; color: var(--accent); margin-top: .3rem; }
+  .confidence-display { font-size: 1.65rem; font-family: 'Plus Jakarta Sans', sans-serif; text-transform: capitalize; color: var(--accent); margin-top: .3rem; font-weight: 700; }
 
   /* ─── EMPTY ──────────────────────────────────────────────── */
   .empty { text-align: center; padding: 2.5rem 2rem; color: var(--ink-muted); font-size: 14px; }
@@ -210,7 +214,7 @@
   .summary-form textarea {
     width: 100%; min-height: 115px;
     border: 1.5px solid rgba(108,82,196,.2); border-radius: 12px;
-    padding: 1rem 1.1rem; font-family: inherit; font-size: 14px;
+    padding: 1rem 1.1rem; font-family: 'Manrope', sans-serif; font-size: 14px;
     color: var(--ink); background: rgba(245,241,255,.55); resize: vertical;
     outline: none; transition: border-color .2s, background .2s; line-height: 1.65;
   }
@@ -220,8 +224,8 @@
   .btn-row { display: flex; gap: .75rem; margin-top: .9rem; flex-wrap: wrap; }
   .btn {
     display: inline-flex; align-items: center; gap: 7px;
-    padding: 10px 22px; border-radius: 999px; font-family: inherit;
-    font-size: 13.5px; font-weight: 600; cursor: pointer;
+    padding: 10px 22px; border-radius: 999px; font-family: 'Manrope', sans-serif;
+    font-size: 13.5px; font-weight: 700; cursor: pointer;
     border: none; transition: all .22s var(--ease); text-decoration: none;
   }
   .btn-ai { background: linear-gradient(135deg, #5c4bbf 0%, #3a7c6a 100%); color: #fff; box-shadow: 0 4px 18px rgba(92,75,191,.28); }
@@ -237,12 +241,12 @@
   .ml-header-moderate { background: linear-gradient(135deg, #fdddb8, #fef5e7); }
   .ml-header-high     { background: linear-gradient(135deg, #fac8c4, #fdecea); }
   .ml-header-inner-label { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: .35rem; }
-  .burnout-badge { font-family: 'Lora', serif; font-size: 1.6rem; font-weight: 400; }
+  .burnout-badge { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.6rem; font-weight: 700; }
   .burnout-low      { color: var(--low); }
   .burnout-moderate { color: var(--mod); }
   .burnout-high     { color: var(--high); }
   .ml-meta-group { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
-  .trend-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+  .trend-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700; font-family: 'Manrope', sans-serif; }
   .trend-improving { background: var(--low-lt);  color: var(--low);  border: 1.5px solid var(--low-border); }
   .trend-stable    { background: var(--accent-lt); color: var(--accent); border: 1.5px solid var(--accent-dim); }
   .trend-worsening { background: var(--high-lt); color: var(--high); border: 1.5px solid var(--high-border); }
@@ -251,7 +255,7 @@
 
   /* ─── SCORE BARS ─────────────────────────────────────────── */
   .score-bar-wrap { margin-bottom: 1.4rem; }
-  .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; font-weight: 500; }
+  .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; font-weight: 600; font-family: 'Manrope', sans-serif; }
   .score-bar-track { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
   .score-bar-fill  { height: 100%; border-radius: 99px; transition: width .8s var(--ease); }
   .fill-low    { background: linear-gradient(90deg, #2e7d5a, #48c48a); }
@@ -264,13 +268,14 @@
     background: linear-gradient(135deg, #f4f1ff, #eef8f2);
     border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0;
     padding: 1.1rem 1.3rem; font-size: 14px; line-height: 1.75;
-    color: var(--ink); margin: 1.25rem 0; font-style: italic;
+    color: var(--ink); margin: 1.25rem 0; font-style: normal;
     border: 1.5px solid rgba(58,92,59,.12); border-left-width: 3px;
+    font-family: 'Manrope', sans-serif;
   }
 
   /* ─── FOCUS LIST ─────────────────────────────────────────── */
   .focus-list { list-style: none; display: flex; flex-direction: column; gap: .55rem; }
-  .focus-item { display: flex; align-items: flex-start; gap: .85rem; font-size: 14px; color: var(--ink); }
+  .focus-item { display: flex; align-items: flex-start; gap: .85rem; font-size: 14px; color: var(--ink); font-family: 'Manrope', sans-serif; }
   .focus-num {
     width: 23px; height: 23px; border-radius: 50%;
     background: var(--accent-lt); color: var(--accent); font-size: 11px; font-weight: 700;
@@ -281,8 +286,8 @@
   /* ─── ML META ────────────────────────────────────────────── */
   .ml-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
   .ml-meta-item { background: var(--surface); border-radius: 12px; padding: 1rem 1.1rem; border: 1px solid var(--border); }
-  .ml-meta-label { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
-  .ml-meta-value { font-size: 1.4rem; font-family: 'Lora', serif; color: var(--ink); }
+  .ml-meta-label { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; font-family: 'Manrope', sans-serif; }
+  .ml-meta-value { font-size: 1.4rem; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); font-weight: 700; }
 
   /* ─── HISTORY CARDS ──────────────────────────────────────── */
   .history-card {
@@ -290,10 +295,11 @@
     border-radius: 12px; padding: 1.1rem 1.25rem; font-size: 13px;
     text-decoration: none; display: block;
     transition: all .22s var(--ease); box-shadow: var(--shadow-sm);
+    font-family: 'Manrope', sans-serif;
   }
   .history-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow); }
-  .history-week { color: var(--ink-faint); font-size: 11px; margin-bottom: .4rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-  .history-risk { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 5px; }
+  .history-week { color: var(--ink-faint); font-size: 11px; margin-bottom: .4rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-family: 'Manrope', sans-serif; }
+  .history-risk { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 5px; font-family: 'Manrope', sans-serif; }
   .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   .dot-low  { background: var(--low); }
   .dot-mod  { background: var(--mod); }
@@ -304,7 +310,7 @@
   .loading-overlay.active { display: flex; }
   .spinner { width: 40px; height: 40px; border: 3px solid var(--border-md); border-top-color: var(--accent); border-radius: 50%; animation: spin .75s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: var(--ink-muted); font-weight: 500; }
+  .loading-text { font-size: 14px; color: var(--ink-muted); font-weight: 600; font-family: 'Manrope', sans-serif; }
 
   /* ─── NO AI ──────────────────────────────────────────────── */
   .no-ai-card { text-align: center; padding: 3rem 2rem; background: linear-gradient(135deg, #f5f2ff 0%, #eef7f2 100%); border-color: rgba(100,80,180,.14); }
@@ -493,7 +499,7 @@
         <div>
           <div class="ml-header-inner-label">Wellness score</div>
           <span class="ml-wellness-num">
-            {{ reflection.ml_wellness_score|floatformat:0 }}<span style="font-size:.9rem; color:var(--ink-muted); font-family:'Outfit',sans-serif;">/100</span>
+            {{ reflection.ml_wellness_score|floatformat:0 }}<span style="font-size:.9rem; color:var(--ink-muted); font-family:'Manrope',sans-serif;">/100</span>
           </span>
         </div>
       </div>
@@ -535,7 +541,7 @@
         <div class="ml-meta-item">
           <div class="ml-meta-label">Predicted stress next week</div>
           <div class="ml-meta-value">
-            {{ reflection.ml_predicted_next_stress|floatformat:0 }}<span style="font-size:.85rem; color:var(--ink-muted); font-family:'Outfit',sans-serif;"> / 100</span>
+            {{ reflection.ml_predicted_next_stress|floatformat:0 }}<span style="font-size:.85rem; color:var(--ink-muted); font-family:'Manrope',sans-serif;"> / 100</span>
           </div>
         </div>
         <div class="ml-meta-item">
@@ -603,8 +609,8 @@
       borderColor: 'rgba(30,40,30,.12)', borderWidth: 1, padding: 10, cornerRadius: 8,
     }},
     scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 11, family: 'Outfit' }, color: '#9eae9e' } },
-      y: { grid: { color: 'rgba(30,40,30,.05)', drawBorder: false }, ticks: { font: { size: 11, family: 'Outfit' }, color: '#9eae9e' } }
+      x: { grid: { display: false }, ticks: { font: { size: 11, family: 'Manrope' }, color: '#9eae9e' } },
+      y: { grid: { color: 'rgba(30,40,30,.05)', drawBorder: false }, ticks: { font: { size: 11, family: 'Manrope' }, color: '#9eae9e' } }
     }
   };
 

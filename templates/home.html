@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home — Study Reflection Coach{% endblock %}
+
+{% block extra_styles %}
+.notched-card {
+    border-top-left-radius: 3rem;
+    border-top-right-radius: 3rem;
+    border-bottom-right-radius: 3rem;
+    border-bottom-left-radius: 0.5rem;
+}
+.breath-blob {
+    filter: blur(80px);
+    z-index: -1;
+}
+{% endblock %}
+
+{% block content %}
+<main class="relative pt-28 overflow-hidden bg-background">
+
+    <!-- Ambient Background Decoration -->
+    <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary-container/30 breath-blob rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-[20%] left-[-10%] w-[600px] h-[600px] bg-secondary-container/20 breath-blob rounded-full pointer-events-none"></div>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-28 grid md:grid-cols-2 gap-12 items-center">
+        <div class="space-y-8">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-primary/5">
+                <span class="material-symbols-outlined text-primary text-sm">colors_spark</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary">
+                    A Mindful Reflection Space
+                </span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-headline font-extrabold leading-[1.1] tracking-tight text-[#63766F]">
+                A sanctuary for your academic journey.
+            </h1>
+
+            <p class="text-xl text-on-surface-variant max-w-lg leading-relaxed font-body">
+                Study Reflection Coach helps you slow down, reflect on your study habits,
+                track your stress and confidence, and build a healthier academic routine.
+            </p>
+
+            <div class="flex flex-wrap gap-4 pt-4">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'reflections:dashboard' %}"
+                       class="bg-primary text-on-primary rounded-full px-10 py-4 text-lg font-bold shadow-lg shadow-primary/10 hover:translate-y-[-2px] transition-all">
+                        Go to Dashboard
+                    </a>
+
+                    <a href="{% url 'reflections:daily_checkin' %}"
+                       class="flex items-center gap-3 px-8 py-4 text-primary font-bold hover:translate-x-2 transition-all">
+                        Start Daily Check-In
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'register' %}"
+                       class="bg-primary text-on-primary rounded-full px-10 py-4 text-lg font-bold shadow-lg shadow-primary/10 hover:translate-y-[-2px] transition-all">
+                        Get Started
+                    </a>
+
+                    <a href="{% url 'login' %}"
+                       class="flex items-center gap-3 px-8 py-4 text-primary font-bold hover:translate-x-2 transition-all">
+                        Sign In
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="relative flex justify-center items-center">
+            <div class="absolute inset-0 bg-primary/5 rounded-[4rem] rotate-3 -z-10 scale-95"></div>
+
+            <div class="bg-surface-container-lowest notched-card shadow-xl p-4 md:p-8 border border-white">
+                <img
+                    src="https://lh3.googleusercontent.com/aida/ADBb0ujQhztT5zwMtqFY5jQOzjz6CCZQhVp4-kthbgkurLhmxa1w0vyW6utSftqBXWPunZt9j8GfzZoVPYnINgoGXPv7YTHB_D0c3aG6b5gPZRPrs315Cb2pBIG_LHCCiq1O6JXLb5GvmF8dSwtylpYsy_bJKrNQ-Bzn89JuQwCbn_NEUd3nNwDTus_0hjYbFqIRFRwl_1LhTR9wyhZwLHd7X2TzHTvOoIGE5J9tCJBCIY1-SxHMX2Ti8we_1jzgcsJwDv-svRDJkC2IjA"
+                    alt="Friendly AI study companion"
+                    class="w-full h-auto max-w-md object-contain mx-auto"
+                />
+            </div>
+
+            <div class="absolute -bottom-6 -left-6 bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-primary/10 max-w-[240px]">
+                <div class="flex gap-3 items-center mb-2">
+                    <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                    <span class="text-xs font-bold text-primary tracking-widest uppercase">
+                        Reflection Prompt
+                    </span>
+                </div>
+                <p class="text-sm font-medium text-on-surface">
+                    “You’ve been studying for 2 hours. How is your energy level feeling right now?”
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="bg-surface-container-low py-24 md:py-28">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-20">
+                <h2 class="text-3xl md:text-5xl font-headline font-bold text-primary mb-6">
+                    Designed for Reflection
+                </h2>
+                <p class="text-on-surface-variant text-lg max-w-2xl mx-auto font-body">
+                    This platform is built to help students understand their routines,
+                    notice stress patterns, and reflect with intention instead of pressure.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <!-- Feature 1 -->
+                <div class="md:col-span-7 bg-surface-container-lowest notched-card p-10 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow group">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-primary-container flex items-center justify-center mb-8 group-hover:rotate-6 transition-transform">
+                            <span class="material-symbols-outlined text-primary text-3xl">self_improvement</span>
+                        </div>
+
+                        <h3 class="text-3xl font-headline font-bold text-primary mb-4">
+                            Reflect, Don’t Just Track
+                        </h3>
+
+                        <p class="text-on-surface-variant text-lg leading-relaxed max-w-md font-body">
+                            Move beyond simple productivity tracking. Log your study time,
+                            stress level, confidence, and reflection notes to understand
+                            how your academic journey actually feels.
+                        </p>
+                    </div>
+
+                    <div class="mt-12 rounded-xl overflow-hidden aspect-video bg-surface-container-high relative">
+                        <img
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCj65mjeTcEJ86jFUYo0iZ1-h2MPykUYstotdywr9fd3N6v8zFQtEZ9IO197kFcOhFzW20KilsCfuxuDPtx4XsIGr1mqEtKEO_N4hcvjlyxAUIbSUVFmQd2WEkhFS1b0SmKaPnv8xB8NBfJ1LrFGsGZTmDdFHk_eccuN_k6ZKwrDDadAIGhYClVIkvCmSjoZWnI3z65ndqSIrFWDHDG9DW2h9pKHUCR-QVDyRdI99bPHIEXYmFS6QPCQYbllSkUg_rdAlDxqBeaanA"
+                            alt="Dashboard preview"
+                            class="w-full h-full object-cover opacity-80"
+                        />
+                    </div>
+                </div>
+
+                <!-- Right column -->
+                <div class="md:col-span-5 flex flex-col gap-8">
+                    <div class="flex-1 bg-primary text-on-primary notched-card p-10 shadow-lg relative overflow-hidden group">
+                        <div class="absolute top-[-20px] right-[-20px] w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform"></div>
+                        <div class="relative z-10">
+                            <span class="material-symbols-outlined text-4xl mb-6 block">psychology</span>
+                            <h3 class="text-2xl font-headline font-bold mb-4">
+                                Weekly AI Insights
+                            </h3>
+                            <p class="text-on-primary/80 font-medium font-body">
+                                Your weekly reflection can turn recent check-ins into gentle,
+                                supportive insights about your stress trends, balance, and focus.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-surface-container-lowest border border-primary/5 notched-card p-10 shadow-sm flex flex-col justify-center">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3 bg-secondary-container rounded-full">
+                                <span class="material-symbols-outlined text-secondary">event_upcoming</span>
+                            </div>
+                            <h3 class="text-2xl font-headline font-bold text-primary">
+                                Deadline Awareness
+                            </h3>
+                        </div>
+                        <p class="text-on-surface-variant leading-relaxed font-body">
+                            Keep track of upcoming deadlines alongside your daily reflections,
+                            so your workload and wellbeing can be understood together.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it fits your project -->
+    <section class="py-24 md:py-28 bg-surface">
+        <div class="max-w-6xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-headline font-bold text-primary mb-6">
+                    How it works
+                </h2>
+                <p class="text-on-surface-variant text-lg max-w-2xl mx-auto font-body">
+                    The app follows a simple reflective flow designed around your existing project features.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-3xl p-8 border border-surface-container-highest/50 shadow-sm">
+                    <div class="w-14 h-14 rounded-2xl bg-primary-container flex items-center justify-center mb-6">
+                        <span class="material-symbols-outlined text-primary text-3xl">edit_note</span>
+                    </div>
+                    <h3 class="text-2xl font-headline font-bold text-primary mb-3">1. Daily Check-In</h3>
+                    <p class="text-on-surface-variant font-body leading-relaxed">
+                        Record your study time, stress level, confidence, and reflection note for the day.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 border border-surface-container-highest/50 shadow-sm">
+                    <div class="w-14 h-14 rounded-2xl bg-secondary-container flex items-center justify-center mb-6">
+                        <span class="material-symbols-outlined text-secondary text-3xl">calendar_month</span>
+                    </div>
+                    <h3 class="text-2xl font-headline font-bold text-primary mb-3">2. Manage Deadlines</h3>
+                    <p class="text-on-surface-variant font-body leading-relaxed">
+                        Add important deadlines and see how upcoming tasks relate to your weekly study wellbeing.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 border border-surface-container-highest/50 shadow-sm">
+                    <div class="w-14 h-14 rounded-2xl bg-tertiary-container flex items-center justify-center mb-6">
+                        <span class="material-symbols-outlined text-tertiary text-3xl">insights</span>
+                    </div>
+                    <h3 class="text-2xl font-headline font-bold text-primary mb-3">3. Weekly Reflection</h3>
+                    <p class="text-on-surface-variant font-body leading-relaxed">
+                        Review the week, notice patterns, and receive AI-supported reflection insights.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="max-w-7xl mx-auto px-6 md:px-12 py-24">
+        <div class="bg-primary-container notched-card p-12 md:p-20 relative overflow-hidden text-center">
+            <div class="absolute top-0 right-0 p-12 opacity-10">
+                <span class="material-symbols-outlined text-9xl">auto_stories</span>
+            </div>
+
+            <div class="relative z-10 max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-6xl font-headline font-extrabold text-primary mb-8">
+                    Begin your reflection today.
+                </h2>
+
+                <p class="text-xl text-on-primary-container mb-12 leading-relaxed font-body">
+                    Build a healthier study rhythm by understanding your stress, confidence,
+                    and academic habits one reflection at a time.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'reflections:dashboard' %}"
+                           class="bg-primary text-on-primary rounded-full px-12 py-5 text-xl font-bold hover:translate-y-[-4px] shadow-lg shadow-primary/20 transition-all">
+                            Open Dashboard
+                        </a>
+
+                        <a href="{% url 'reflections:weekly_reflection' %}"
+                           class="bg-white/50 backdrop-blur-sm text-primary border border-primary/10 rounded-full px-12 py-5 text-xl font-bold hover:bg-white transition-all">
+                            Weekly Reflection
+                        </a>
+                    {% else %}
+                        <a href="{% url 'register' %}"
+                           class="bg-primary text-on-primary rounded-full px-12 py-5 text-xl font-bold hover:translate-y-[-4px] shadow-lg shadow-primary/20 transition-all">
+                            Create Account
+                        </a>
+
+                        <a href="{% url 'login' %}"
+                           class="bg-white/50 backdrop-blur-sm text-primary border border-primary/10 rounded-full px-12 py-5 text-xl font-bold hover:bg-white transition-all">
+                            Sign In
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

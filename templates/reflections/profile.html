@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile — Study Reflection Coach{% endblock %}
+
+{% block extra_styles %}
+.notched-card {
+    border-radius: 3rem 3rem 3rem 0.5rem;
+}
+{% endblock %}
+
+{% block content %}
+<main class="min-h-screen pt-32 pb-24 px-6 md:px-12 flex flex-col items-center relative overflow-hidden">
+
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="w-full max-w-4xl relative z-10">
+
+        <div class="mb-12 text-left">
+            <h1 class="font-headline font-extrabold text-[3rem] tracking-tight leading-tight text-[#63766F]">
+                Profile
+            </h1>
+            <p class="text-on-surface-variant font-body text-lg mt-2">
+                Manage your personal information
+            </p>
+        </div>
+
+        {% if messages %}
+        <div class="mb-6 space-y-3">
+            {% for message in messages %}
+            <div class="rounded-2xl px-5 py-4 text-sm font-medium
+                {% if message.tags == 'success' %}
+                    bg-primary-container text-on-primary-container
+                {% elif message.tags == 'error' %}
+                    bg-error-container text-on-error-container
+                {% else %}
+                    bg-surface-container text-on-surface
+                {% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="bg-surface-container-lowest notched-card p-8 md:p-12 shadow-[0_4px_40px_rgba(79,100,91,0.04)] border border-surface-container-highest/40">
+            <form method="POST" class="space-y-10">
+                {% csrf_token %}
+
+                {{ form|crispy }}
+
+                <div class="pt-8 border-t border-outline-variant/10">
+                    <h3 class="font-headline font-bold text-primary mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined">info</span>
+                        Account Information
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-tertiary-container/30 p-3 rounded-2xl">
+                                <span class="material-symbols-outlined text-tertiary">calendar_today</span>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold text-outline-variant uppercase tracking-wider">
+                                    Date Joined
+                                </p>
+                                <p class="font-body text-on-surface">
+                                    {{ request.user.date_joined|date:"F d, Y" }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="bg-secondary-container/30 p-3 rounded-2xl">
+                                <span class="material-symbols-outlined text-secondary">history</span>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold text-outline-variant uppercase tracking-wider">
+                                    Last Login
+                                </p>
+                                <p class="font-body text-on-surface">
+                                    {{ request.user.last_login|date:"F d, Y, h:i A" }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-10 flex flex-col md:flex-row-reverse items-center justify-between gap-6">
+                    <button
+                        type="submit"
+                        class="bg-primary text-on-primary font-headline font-bold rounded-full px-10 py-4 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all w-full md:w-auto">
+                        Update Profile
+                    </button>
+
+                    <a
+                        href="{% url 'reflections:dashboard' %}"
+                        class="text-on-surface-variant font-label font-bold text-sm flex items-center gap-2 hover:translate-x-[-4px] transition-transform">
+                        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}

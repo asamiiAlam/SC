@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import modelformset_factory
 from django.utils import timezone
-
+from Accounts.models import Account
 from .models import DailyCheckIn, Deadline, STUDY_TIME_CHOICES, CONFIDENCE_CHOICES
 
 
@@ -97,3 +97,32 @@ DeadlineFormSet = modelformset_factory(
     extra=1,
     can_delete=False,
 )
+
+class UpdateProfileForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = ['first_name', 'last_name', 'username', 'phone_number', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full bg-surface-container-low border-none rounded-xl px-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/20 transition-all font-body text-lg',
+                'placeholder': 'Enter first name',
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full bg-surface-container-low border-none rounded-xl px-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/20 transition-all font-body text-lg',
+                'placeholder': 'Enter last name',
+            }),
+            'username': forms.TextInput(attrs={
+                'class': 'w-full bg-surface-container-low border-none rounded-xl pl-12 pr-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/20 transition-all font-body text-lg',
+                'placeholder': 'Enter username',
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'w-full bg-surface-container-low border-none rounded-xl pl-12 pr-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/20 transition-all font-body text-lg',
+                'placeholder': '+8801XXXXXXXXX',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full bg-surface-container-low border-none rounded-xl pl-12 pr-6 py-4 text-on-surface focus:ring-2 focus:ring-primary/20 transition-all font-body text-lg',
+                'placeholder': 'email address',
+            }),
+        }
+
+   

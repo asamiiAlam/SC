@@ -8,8 +8,9 @@ from django.db.models import Avg
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from httpcore import request
 
-from .forms import DailyCheckInForm, DeadlineFormSet
+from .forms import DailyCheckInForm, DeadlineFormSet,UpdateProfileForm
 from .models import DailyCheckIn, Deadline, WeeklyReflection
 from .stress_ml import predict_weekly_reflection
 
@@ -537,3 +538,20 @@ def weekly_reflection_api(request):
 
     result = predict_weekly_reflection(stats)
     return JsonResponse(result)
+@login_required
+def profile(request):
+     if request.method == 'POST':
+        form = UpdateProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            if not form.has_changed():
+                messages.info(request, 'No changes to save.')
+            else:
+                form.save()
+                messages.success(request, 'Your profile has been updated.')
+            return redirect('reflections:profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+     else:
+        form = UpdateProfileForm(instance=request.user)
+        return render(request, 'reflections/profile.html', {'form': form})
+    

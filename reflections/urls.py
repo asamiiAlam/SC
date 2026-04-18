@@ -12,4 +12,6 @@ urlpatterns = [
     path('weekly/<int:offset>/',views.weekly_reflection,name='weekly_reflection_offset'),
     path('weekly/api/analyze/',views.weekly_reflection_api, name='weekly_reflection_api'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('profile/', views.profile, name='profile'),
+   
 ]
