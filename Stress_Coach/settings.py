@@ -138,3 +138,5 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "samipython455@gmail.com"
 
 AUTH_USER_MODEL = 'Accounts.Account'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']

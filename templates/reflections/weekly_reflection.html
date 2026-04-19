@@ -5,7 +5,117 @@
 
 {% block extra_css %}
 <style>
+
   /* ─── TOKENS ─────────────────────────────────────────────── */
+  .support-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media (max-width: 900px) {
+  .support-grid { grid-template-columns: 1fr; }
+}
+
+.resource-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.resource-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: .35rem;
+}
+
+.resource-desc {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.65;
+  margin-bottom: .9rem;
+  font-family: 'Manrope', sans-serif;
+}
+
+.video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 14px;
+  margin-bottom: .9rem;
+}
+
+.video-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--accent-lt);
+  color: var(--accent);
+  border: 1.5px solid var(--accent-dim);
+  font-family: 'Manrope', sans-serif;
+}
+
+.exercise-card {
+  background: linear-gradient(135deg, #eef8f2, #ffffff);
+  border: 1.5px solid rgba(58,92,59,.12);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+}
+
+.exercise-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: .3rem;
+}
+
+.exercise-meta {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-bottom: .6rem;
+  font-family: 'Manrope', sans-serif;
+}
+
+.exercise-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+}
+
+.exercise-list li {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.6;
+  display: flex;
+  gap: .6rem;
+  font-family: 'Manrope', sans-serif;
+}
+
+.exercise-bullet {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-lt);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border: 1.5px solid rgba(58,92,59,.15);
+}
   :root {
     --ink:        #1a1f1a;
     --ink-muted:  #5e6e5e;
@@ -568,7 +678,75 @@
     </button>
   </div>
   {% endif %}
+{% if has_ml_results %}
+  <div class="section-heading">Support tools for this week</div>
 
+  <div class="support-grid" style="margin-bottom:1.4rem;">
+    <div class="card">
+      <div class="card-label">Breathing videos</div>
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        {% for video in breathing_videos %}
+        <div class="resource-card">
+          <div class="resource-title">{{ video.title }}</div>
+          <div class="resource-desc">{{ video.description }}</div>
+          <iframe
+            class="video-frame"
+            src="{{ video.embed_url }}"
+            title="{{ video.title }}"
+            loading="lazy"
+            allowfullscreen>
+          </iframe>
+          <a href="{{ video.url }}" target="_blank" rel="noopener noreferrer" class="video-link">
+            Watch on {{ video.source }}
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Mental wellbeing videos</div>
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        {% for video in wellbeing_videos %}
+        <div class="resource-card">
+          <div class="resource-title">{{ video.title }}</div>
+          <div class="resource-desc">{{ video.description }}</div>
+          <iframe
+            class="video-frame"
+            src="{{ video.embed_url }}"
+            title="{{ video.title }}"
+            loading="lazy"
+            allowfullscreen>
+          </iframe>
+          <a href="{{ video.url }}" target="_blank" rel="noopener noreferrer" class="video-link">
+            Watch on {{ video.source }}
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-label">Recommended exercises</div>
+    <div class="support-grid">
+      {% for exercise in exercises %}
+      <div class="exercise-card">
+        <div class="exercise-title">{{ exercise.title }}</div>
+        <div class="exercise-meta">{{ exercise.duration }}</div>
+        <ul class="exercise-list">
+          {% for step in exercise.steps %}
+          <li>
+            <span class="exercise-bullet">{{ forloop.counter }}</span>
+            <span>{{ step }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
   <!-- RECENT WEEKS -->
   {% if past_reflections %}
   <div class="section-heading">Recent weeks</div>

@@ -19,6 +19,16 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+.chat-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+.chat-scrollbar::-webkit-scrollbar-thumb {
+    background: #d8d8d1;
+    border-radius: 999px;
+}
+.chat-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
 {% endblock %}
 
 {% block content %}
@@ -26,8 +36,8 @@
 
     <div class="mb-10">
         <h1 class="font-headline text-3xl font-bold text-[#63766F] tracking-tight">
-         Welcome back, {{ request.user.first_name|default:request.user.username }} 👋
-    </h1>
+            Welcome back, {{ request.user.first_name|default:request.user.username }} 👋
+        </h1>
         <p class="text-on-surface-variant text-sm mt-1 font-body">
             Here's your wellbeing overview for today.
         </p>
@@ -162,7 +172,7 @@
                             {{ latest_week.ml_stress_trend|default:"Stable"|capfirst }}
                         </span>
                     </div>
-                    <p class="text-sm text-on-surface font-body leading-relaxed">
+                    <p class="text-sm text-on-surface font-body leading-relaxed whitespace-pre-line">
                         {{ latest_week.ml_recommendation|default:"Run your weekly reflection to see a personalized insight." }}
                     </p>
                 </div>
@@ -265,11 +275,7 @@
                         </div>
 
                         <span class="text-[10px] text-on-surface-variant font-label">
-                            {% if c.day_label %}
-                                {{ c.day_label }}
-                            {% elif c.created_at %}
-                                {{ c.created_at|date:"D" }}
-                            {% endif %}
+                            {{ c.day_label }}
                         </span>
                     </div>
                     {% endfor %}
@@ -297,7 +303,7 @@
 
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
         <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-7">
             <div class="flex items-center justify-between mb-6">
@@ -383,5 +389,272 @@
 
     </div>
 
+    <div class="bg-white rounded-2xl border border-surface-container-highest/50 p-7 mb-6">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+            <div>
+                <h2 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">psychology</span>
+                    Mental Health Support Chat
+                </h2>
+                <p class="text-sm text-on-surface-variant font-body mt-1">
+                    Share how you feel and get gentle wellbeing suggestions for stress, focus, and study balance.
+                </p>
+            </div>
+
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-container text-on-primary-container text-xs font-semibold font-label">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                Support Assistant
+            </div>
+        </div>
+
+        <div id="chatContainer" class="chat-scrollbar bg-surface rounded-2xl border border-surface-container-highest/60 h-[420px] overflow-y-auto p-4 space-y-4">
+            <div class="flex justify-start">
+                <div class="max-w-[85%] rounded-2xl rounded-bl-md bg-primary-container px-4 py-3 text-sm text-on-primary-container shadow-sm font-body">
+                    Hi {{ request.user.first_name|default:request.user.username }}. I’m here to support you. You can share stress, study pressure, low mood, focus problems, or ask for a calming suggestion.
+                </div>
+            </div>
+        </div>
+
+        <div id="crisisAlert" class="hidden mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-medium">
+            This looks serious. Please contact emergency services, a trusted person, or a mental health professional immediately.
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+            <button type="button" class="quick-msg px-4 py-2 rounded-full bg-secondary-container text-on-secondary-container text-sm font-semibold font-label" data-message="I feel stressed about my deadlines.">
+                I feel stressed
+            </button>
+            <button type="button" class="quick-msg px-4 py-2 rounded-full bg-tertiary-container text-on-tertiary-container text-sm font-semibold font-label" data-message="I cannot focus on studying.">
+                I cannot focus
+            </button>
+            <button type="button" class="quick-msg px-4 py-2 rounded-full bg-primary-container text-on-primary-container text-sm font-semibold font-label" data-message="Give me a short calming exercise.">
+                Calming exercise
+            </button>
+            <button type="button" class="quick-msg px-4 py-2 rounded-full bg-surface-container text-on-surface text-sm font-semibold font-label" data-message="I feel tired and overwhelmed.">
+                Tired and overwhelmed
+            </button>
+        </div>
+
+        <form id="chatForm" class="mt-5">
+            {% csrf_token %}
+            <div class="flex flex-col md:flex-row gap-3">
+                <input
+                    type="text"
+                    id="chatInput"
+                    name="message"
+                    placeholder="Type how you are feeling..."
+                    class="flex-1 rounded-2xl border border-surface-container-highest bg-surface px-5 py-4 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 font-body"
+                    required
+                >
+                <button
+                    type="submit"
+                    id="chatSubmitBtn"
+                    class="rounded-2xl bg-primary text-on-primary px-6 py-4 font-semibold hover:opacity-90 transition-all flex items-center justify-center gap-2 min-w-[130px]">
+                    <span class="material-symbols-outlined text-base">send</span>
+                    Send
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-5 rounded-2xl bg-tertiary-container/40 border border-surface-container-highest p-4">
+            <p class="text-sm text-on-surface font-body">
+                <span class="font-semibold">Note:</span>
+                This chat offers gentle wellbeing suggestions only. It does not replace a doctor, therapist, or emergency support.
+            </p>
+        </div>
+    </div>
+
+    <div id="musicSuggestionCard" class="hidden bg-white rounded-2xl border border-surface-container-highest/50 p-7">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+            <div>
+                <h2 class="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">music_note</span>
+                    Suggested Music for You
+                </h2>
+                <p class="text-sm text-on-surface-variant font-body mt-1">
+                    Based on your recent chat, this may help right now.
+                </p>
+            </div>
+
+            <span id="musicTypeBadge"
+                  class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-container text-on-primary-container text-xs font-semibold font-label">
+                Suggested
+            </span>
+        </div>
+
+        <div class="rounded-2xl border border-surface-container-highest bg-surface p-5">
+            <h3 id="suggestedMusicTitle" class="font-headline text-lg font-bold text-on-surface">
+                No music suggested yet
+            </h3>
+            <p id="suggestedMusicDescription" class="text-sm text-on-surface-variant font-body mt-1">
+                Chat with the assistant to get a music recommendation.
+            </p>
+
+            <div class="mt-5 flex items-center gap-3 flex-wrap">
+                <button type="button" id="playSuggestedMusicBtn"
+                    class="px-5 py-3 rounded-full bg-primary text-on-primary font-semibold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">play_arrow</span>
+                    Play
+                </button>
+
+                <button type="button" id="pauseSuggestedMusicBtn"
+                    class="px-5 py-3 rounded-full bg-secondary-container text-on-secondary-container font-semibold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">pause</span>
+                    Pause
+                </button>
+
+                <button type="button" id="stopSuggestedMusicBtn"
+                    class="px-5 py-3 rounded-full bg-surface-container text-on-surface font-semibold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">stop</span>
+                    Stop
+                </button>
+            </div>
+
+            <audio id="suggestedMusicPlayer" class="w-full mt-5" controls>
+                <source src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+
 </main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("chatInput");
+    const chatContainer = document.getElementById("chatContainer");
+    const quickButtons = document.querySelectorAll(".quick-msg");
+    const submitBtn = document.getElementById("chatSubmitBtn");
+    const crisisAlert = document.getElementById("crisisAlert");
+
+    const musicSuggestionCard = document.getElementById("musicSuggestionCard");
+    const musicTypeBadge = document.getElementById("musicTypeBadge");
+    const suggestedMusicTitle = document.getElementById("suggestedMusicTitle");
+    const suggestedMusicDescription = document.getElementById("suggestedMusicDescription");
+    const playSuggestedMusicBtn = document.getElementById("playSuggestedMusicBtn");
+    const pauseSuggestedMusicBtn = document.getElementById("pauseSuggestedMusicBtn");
+    const stopSuggestedMusicBtn = document.getElementById("stopSuggestedMusicBtn");
+    const suggestedMusicPlayer = document.getElementById("suggestedMusicPlayer");
+
+    let suggestedMusicSrc = "";
+
+    function appendMessage(message, sender = "user") {
+        const wrapper = document.createElement("div");
+        wrapper.className = sender === "user" ? "flex justify-end" : "flex justify-start";
+
+        const bubble = document.createElement("div");
+        bubble.className = sender === "user"
+            ? "max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-sm text-on-primary shadow-sm font-body"
+            : "max-w-[85%] rounded-2xl rounded-bl-md bg-primary-container px-4 py-3 text-sm text-on-primary-container shadow-sm font-body";
+
+        bubble.textContent = message;
+        wrapper.appendChild(bubble);
+        chatContainer.appendChild(wrapper);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTyping() {
+        const wrapper = document.createElement("div");
+        wrapper.className = "flex justify-start";
+        wrapper.id = "typingBubble";
+        wrapper.innerHTML = `
+            <div class="max-w-[85%] rounded-2xl rounded-bl-md bg-surface-container px-4 py-3 text-sm text-on-surface-variant shadow-sm font-body">
+                Thinking...
+            </div>
+        `;
+        chatContainer.appendChild(wrapper);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeTyping() {
+        const typingBubble = document.getElementById("typingBubble");
+        if (typingBubble) typingBubble.remove();
+    }
+
+    async function sendMessage(message) {
+        appendMessage(message, "user");
+        crisisAlert.classList.add("hidden");
+        showTyping();
+
+        submitBtn.disabled = true;
+        input.disabled = true;
+
+        try {
+            const response = await fetch("{% url 'reflections:mental_health_chat_api' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+            removeTyping();
+
+            appendMessage(
+                data.reply || "I’m here with you. Try taking one slow breath and tell me a little more.",
+                "bot"
+            );
+
+            if (data.is_crisis) {
+                crisisAlert.classList.remove("hidden");
+            }
+
+            if (data.music_suggestion) {
+                const music = data.music_suggestion;
+
+                suggestedMusicTitle.textContent = music.music_title || "Suggested Music";
+                suggestedMusicDescription.textContent = music.music_description || "";
+                musicTypeBadge.textContent = music.music_type || "Suggested";
+
+                suggestedMusicSrc = `/static/${music.music_file}`;
+                suggestedMusicPlayer.src = suggestedMusicSrc;
+
+                musicSuggestionCard.classList.remove("hidden");
+            }
+        } catch (error) {
+            removeTyping();
+            appendMessage("Sorry, something went wrong. Please try again.", "bot");
+        } finally {
+            submitBtn.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
+    }
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const message = input.value.trim();
+        if (!message) return;
+        input.value = "";
+        sendMessage(message);
+    });
+
+    quickButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const msg = this.dataset.message;
+            sendMessage(msg);
+        });
+    });
+
+    playSuggestedMusicBtn.addEventListener("click", function () {
+        if (!suggestedMusicSrc) return;
+        suggestedMusicPlayer.play();
+    });
+
+    pauseSuggestedMusicBtn.addEventListener("click", function () {
+        if (!suggestedMusicSrc) return;
+        suggestedMusicPlayer.pause();
+    });
+
+    stopSuggestedMusicBtn.addEventListener("click", function () {
+        if (!suggestedMusicSrc) return;
+        suggestedMusicPlayer.pause();
+        suggestedMusicPlayer.currentTime = 0;
+    });
+});
+</script>
 {% endblock %}

@@ -14,5 +14,6 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('profile/', views.profile, name='profile'),
     path('change-password/', views.change_password, name='change_password'),
+    path('mental-health-chat/', views.mental_health_chat_api, name='mental_health_chat_api'),
    
 ]
