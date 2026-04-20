@@ -91,13 +91,6 @@
                 {% endif %}"
                 href="{% url 'reflections:weekly_reflection' %}">Weekly Reflection</a>
 
-            <a class="font-medium font-['Plus_Jakarta_Sans'] transition-all
-                {% if request.resolver_match.url_name == 'checkin_history' %}
-                    text-[#4f645b] font-semibold border-b-2 border-[#4f645b] pb-1
-                {% else %}
-                    text-stone-500 hover:text-[#4f645b]
-                {% endif %}"
-                href="{% url 'watch:wearable_dashboard' %}">Watch</a>
                 <a class="font-medium font-['Plus_Jakarta_Sans'] transition-all
                 {% if request.resolver_match.url_name == 'checkin_history' %}
                     text-[#4f645b] font-semibold border-b-2 border-[#4f645b] pb-1

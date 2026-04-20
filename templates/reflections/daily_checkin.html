@@ -90,6 +90,43 @@ input[type="range"]::-webkit-slider-runnable-track {
     to   { opacity: 1; transform: translateY(0);    }
 }
 .deadline-form { animation: slideIn 0.25s ease forwards; }
+
+/* ── Calm organizer game ── */
+.calm-game-shell {
+    background: linear-gradient(135deg, rgba(209,232,221,0.35), rgba(245,244,239,0.9));
+}
+.calm-token {
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+.calm-token:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(79,100,91,0.12);
+}
+.calm-token.dragging {
+    opacity: 0.65;
+    transform: scale(1.04);
+    cursor: grabbing;
+}
+.calm-zone {
+    min-height: 150px;
+    transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+}
+.calm-zone.active-drop {
+    border-color: #4f645b !important;
+    background-color: rgba(209,232,221,0.4) !important;
+    transform: translateY(-2px);
+}
+.calm-zone.done-zone {
+    border-color: rgba(79,100,91,0.35) !important;
+}
+.calm-zone-items {
+    min-height: 52px;
+}
+.calm-token.placed {
+    cursor: default;
+}
 {% endblock %}
 
 {% block content %}
@@ -408,6 +445,113 @@ input[type="range"]::-webkit-slider-runnable-track {
         </div>
     </form>
 
+    <!-- ════════════════ CALM ORGANIZER GAME ════════════════ -->
+    <section class="mt-16">
+        <div class="rounded-[2rem] border border-surface-container-highest/40 p-6 md:p-8 calm-game-shell shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-5 mb-8">
+                <div>
+                    <h2 class="font-headline text-3xl font-extrabold text-primary tracking-tight flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[32px]">view_kanban</span>
+                        Drag-to-Organize Calm Objects
+                    </h2>
+                    <p class="text-on-surface-variant text-base mt-2 max-w-2xl leading-relaxed">
+                        Drag each calm object into the place where it helps most. This small activity is meant to slow you down and gently reset your attention.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-primary-container text-on-primary-container text-xs font-bold uppercase tracking-[0.08em]">
+                    <span class="material-symbols-outlined text-[16px]">spa</span>
+                    Quick relief activity
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Tokens -->
+                <div class="lg:col-span-4">
+                    <div class="bg-surface-container-lowest rounded-3xl border border-surface-container-highest/40 p-5">
+                        <div class="flex items-center justify-between gap-3 mb-4">
+                            <h3 class="font-headline text-xl font-bold text-on-surface">Calm objects</h3>
+                            <button
+                                type="button"
+                                id="reset-calm-game"
+                                class="px-4 py-2 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high font-bold text-sm transition-all active:scale-95">
+                                Reset
+                            </button>
+                        </div>
+
+                        <p class="text-sm text-on-surface-variant mb-5">
+                            Drag these one by one into the area where they belong best.
+                        </p>
+
+                        <div id="calm-object-pool" class="grid grid-cols-2 gap-3">
+                            <div draggable="true" data-item="Breathe slowly" class="calm-token px-4 py-4 rounded-2xl bg-primary-container text-on-primary-container font-semibold text-sm text-center">Breathe slowly</div>
+                            <div draggable="true" data-item="Stretch shoulders" class="calm-token px-4 py-4 rounded-2xl bg-secondary-container text-on-secondary-container font-semibold text-sm text-center">Stretch shoulders</div>
+                            <div draggable="true" data-item="Sip water" class="calm-token px-4 py-4 rounded-2xl bg-tertiary-container text-on-tertiary-container font-semibold text-sm text-center">Sip water</div>
+                            <div draggable="true" data-item="One small step" class="calm-token px-4 py-4 rounded-2xl bg-surface-container-high text-on-surface font-semibold text-sm text-center">One small step</div>
+                            <div draggable="true" data-item="Soft music" class="calm-token px-4 py-4 rounded-2xl bg-primary-fixed text-on-primary-fixed font-semibold text-sm text-center">Soft music</div>
+                            <div draggable="true" data-item="Look away from screen" class="calm-token px-4 py-4 rounded-2xl bg-surface-container text-on-surface-variant font-semibold text-sm text-center">Look away from screen</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zones -->
+                <div class="lg:col-span-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="calm-zone rounded-3xl border-2 border-dashed border-primary/20 bg-white/70 p-4" data-zone="body">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-11 h-11 rounded-2xl bg-primary-container flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary">self_improvement</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline text-lg font-bold text-on-surface">Body</h3>
+                                    <p class="text-xs text-on-surface-variant">Things that relax the body</p>
+                                </div>
+                            </div>
+                            <div class="calm-zone-items space-y-3"></div>
+                        </div>
+
+                        <div class="calm-zone rounded-3xl border-2 border-dashed border-secondary/20 bg-white/70 p-4" data-zone="mind">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-11 h-11 rounded-2xl bg-secondary-container flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-secondary">psychology</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline text-lg font-bold text-on-surface">Mind</h3>
+                                    <p class="text-xs text-on-surface-variant">Things that calm thoughts</p>
+                                </div>
+                            </div>
+                            <div class="calm-zone-items space-y-3"></div>
+                        </div>
+
+                        <div class="calm-zone rounded-3xl border-2 border-dashed border-tertiary/20 bg-white/70 p-4" data-zone="space">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-11 h-11 rounded-2xl bg-tertiary-container flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-tertiary">weekend</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline text-lg font-bold text-on-surface">Space</h3>
+                                    <p class="text-xs text-on-surface-variant">Things that soften your environment</p>
+                                </div>
+                            </div>
+                            <div class="calm-zone-items space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 rounded-3xl bg-surface-container-lowest border border-surface-container-highest/40 p-5">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant/60 mb-1">Progress</p>
+                                <p id="calm-game-progress" class="font-headline text-xl font-bold text-primary">0 / 6 placed</p>
+                            </div>
+                            <p id="calm-game-message" class="text-sm text-on-surface-variant max-w-xl leading-relaxed">
+                                Start by dragging one object into the place where it feels most calming to you.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ── Template for JS-cloned deadline rows ── -->
     <template id="empty-deadline-form-template">
         <div class="deadline-form space-y-3 p-4 bg-surface-container-low rounded-2xl border border-surface-container-highest/40">
@@ -471,9 +615,118 @@ if (addBtn && container && totalInput && tmpl) {
         const html = tmpl.innerHTML.replace(/__prefix__/g, idx);
         container.insertAdjacentHTML('beforeend', html);
         totalInput.value = idx + 1;
-        // Auto-focus the new title field
         container.lastElementChild?.querySelector('input[type="text"]')?.focus();
     });
 }
+
+// ── Calm organizer game ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const pool = document.getElementById('calm-object-pool');
+    const zones = document.querySelectorAll('.calm-zone');
+    const resetGameBtn = document.getElementById('reset-calm-game');
+    const progressText = document.getElementById('calm-game-progress');
+    const messageText = document.getElementById('calm-game-message');
+
+    if (!pool || !zones.length || !resetGameBtn || !progressText || !messageText) return;
+
+    let placedCount = 0;
+    let draggedToken = null;
+    const totalTokens = 6;
+
+    const starterTokens = [
+        { label: 'Breathe slowly', cls: 'bg-primary-container text-on-primary-container' },
+        { label: 'Stretch shoulders', cls: 'bg-secondary-container text-on-secondary-container' },
+        { label: 'Sip water', cls: 'bg-tertiary-container text-on-tertiary-container' },
+        { label: 'One small step', cls: 'bg-surface-container-high text-on-surface' },
+        { label: 'Soft music', cls: 'bg-primary-fixed text-on-primary-fixed' },
+        { label: 'Look away from screen', cls: 'bg-surface-container text-on-surface-variant' }
+    ];
+
+    function buildToken(item) {
+        const token = document.createElement('div');
+        token.draggable = true;
+        token.dataset.item = item.label;
+        token.className = `calm-token px-4 py-4 rounded-2xl font-semibold text-sm text-center ${item.cls}`;
+        token.textContent = item.label;
+        attachTokenEvents(token);
+        return token;
+    }
+
+    function attachTokenEvents(token) {
+        token.addEventListener('dragstart', () => {
+            if (token.classList.contains('placed')) return;
+            draggedToken = token;
+            token.classList.add('dragging');
+        });
+
+        token.addEventListener('dragend', () => {
+            token.classList.remove('dragging');
+            zones.forEach(zone => zone.classList.remove('active-drop'));
+        });
+    }
+
+    function updateProgress() {
+        progressText.textContent = `${placedCount} / ${totalTokens} placed`;
+
+        if (placedCount === 0) {
+            messageText.textContent = 'Start by dragging one object into the place where it feels most calming to you.';
+        } else if (placedCount < totalTokens) {
+            messageText.textContent = 'Nice. Keep going slowly and organize the rest in a way that feels soothing.';
+        } else {
+            messageText.textContent = 'Beautiful. You have organized all your calm objects. Take one slow breath and notice how that felt.';
+            zones.forEach(zone => zone.classList.add('done-zone'));
+        }
+    }
+
+    function resetCalmGame() {
+        pool.innerHTML = '';
+        zones.forEach(zone => {
+            const itemsWrap = zone.querySelector('.calm-zone-items');
+            if (itemsWrap) itemsWrap.innerHTML = '';
+            zone.classList.remove('active-drop', 'done-zone');
+        });
+
+        starterTokens.forEach(item => {
+            pool.appendChild(buildToken(item));
+        });
+
+        placedCount = 0;
+        draggedToken = null;
+        updateProgress();
+    }
+
+    zones.forEach(zone => {
+        const itemsWrap = zone.querySelector('.calm-zone-items');
+
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('active-drop');
+        });
+
+        zone.addEventListener('dragleave', () => {
+            zone.classList.remove('active-drop');
+        });
+
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('active-drop');
+
+            if (!draggedToken || draggedToken.classList.contains('placed') || !itemsWrap) return;
+
+            draggedToken.classList.remove('dragging');
+            draggedToken.classList.add('placed');
+            draggedToken.draggable = false;
+            itemsWrap.appendChild(draggedToken);
+
+            placedCount += 1;
+            draggedToken = null;
+            updateProgress();
+        });
+    });
+
+    resetGameBtn.addEventListener('click', resetCalmGame);
+
+    resetCalmGame();
+});
 </script>
 {% endblock %}
