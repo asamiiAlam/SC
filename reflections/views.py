@@ -11,6 +11,7 @@ from django.db.models import Avg
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.templatetags.static import static
 
 from .forms import DailyCheckInForm, DeadlineFormSet, UpdateProfileForm
 from .models import DailyCheckIn, Deadline, WeeklyReflection
@@ -534,7 +535,6 @@ def checkin_history(request):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # weekly reflection
-# ─────────────────────────────────────────────────────────────────────────────
 def _build_support_resources(reflection) -> dict:
     stress = float(reflection.avg_stress_level or 0)
     risk = (reflection.ml_burnout_risk or "").lower()
@@ -586,6 +586,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "Box Breathing",
                 "duration": "2–5 min",
+                "gif": "images/gifs/box-breathing.gif",
                 "steps": [
                     "Breathe in for 4 seconds",
                     "Hold for 4 seconds",
@@ -596,6 +597,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "Shoulder Release Reset",
                 "duration": "2 min",
+                "gif": "images/gifs/shoulder-reset.gif",
                 "steps": [
                     "Lift shoulders up gently",
                     "Hold for 3 seconds",
@@ -606,6 +608,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "5-4-3-2-1 Grounding",
                 "duration": "3 min",
+                "gif": "images/gifs/grounding.gif",
                 "steps": [
                     "Notice 5 things you can see",
                     "Notice 4 things you can feel",
@@ -620,6 +623,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "10-Min Mindfulness Pause",
                 "duration": "10 min",
+                "gif": "images/gifs/mindfulness.gif",
                 "steps": [
                     "Sit comfortably",
                     "Focus on your breathing",
@@ -630,6 +634,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "Progressive Muscle Reset",
                 "duration": "5 min",
+                "gif": "images/gifs/muscle-reset.gif",
                 "steps": [
                     "Tense hands for 5 seconds, then relax",
                     "Repeat with shoulders, jaw, and legs",
@@ -639,6 +644,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "Mini Study Recovery Break",
                 "duration": "5 min",
+                "gif": "images/gifs/study-break.gif",
                 "steps": [
                     "Stand up and step away from your desk",
                     "Stretch your arms and neck",
@@ -652,6 +658,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "Mindful Breathing Check-In",
                 "duration": "2 min",
+                "gif": "images/gifs/breathing.gif",
                 "steps": [
                     "Pause your work",
                     "Take 5 slow breaths",
@@ -662,6 +669,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "10-Min Mindfulness Session",
                 "duration": "10 min",
+                "gif": "images/gifs/mindfulness-session.gif",
                 "steps": [
                     "Sit quietly",
                     "Focus on breathing and body sensations",
@@ -672,6 +680,7 @@ def _build_support_resources(reflection) -> dict:
             {
                 "title": "Leisure Protection Exercise",
                 "duration": "5 min",
+                "gif": "images/gifs/leisure.gif",
                 "steps": [
                     "Write one non-study activity you will protect this week",
                     "Choose a day and time for it",
@@ -997,7 +1006,7 @@ def _get_music_suggestion(user_message: str, dashboard_context: dict) -> dict:
             "music_type": "Calm",
             "music_title": "Calm Piano",
             "music_description": "Soft piano for stress relief",
-            "music_file": "music/calm_piano.mp3",
+            "music_url": static("music/calm_piano.mp3"),
         }
 
     if any(word in msg for word in ["anxious", "anxiety", "panic", "worried", "nervous"]):
@@ -1005,7 +1014,7 @@ def _get_music_suggestion(user_message: str, dashboard_context: dict) -> dict:
             "music_type": "Breathing",
             "music_title": "Breathing Ambience",
             "music_description": "Gentle rain sound for calming down",
-            "music_file": "music/breathing_ambience.mp3",
+            "music_url": static("music/breathing_ambience.mp3"),
         }
 
     if any(word in msg for word in ["focus", "concentrate", "distracted", "motivation"]):
@@ -1013,7 +1022,7 @@ def _get_music_suggestion(user_message: str, dashboard_context: dict) -> dict:
             "music_type": "Focus",
             "music_title": "Rain Focus",
             "music_description": "Relaxing rain for concentration",
-            "music_file": "music/rain_focus.mp3",
+            "music_url": static("music/deep_focus.mp3"),
         }
 
     if any(word in msg for word in ["tired", "sleep", "exhausted", "fatigue", "burnout"]):
@@ -1021,7 +1030,7 @@ def _get_music_suggestion(user_message: str, dashboard_context: dict) -> dict:
             "music_type": "Rest",
             "music_title": "Soft Ambient Reset",
             "music_description": "Light ambient sound for rest and reset",
-            "music_file": "music/soft_ambient.mp3",
+            "music_url": static("music/peaceful_piano.mp3"),
         }
 
     if avg_stress >= 70:
@@ -1029,14 +1038,14 @@ def _get_music_suggestion(user_message: str, dashboard_context: dict) -> dict:
             "music_type": "Calm",
             "music_title": "Peaceful Piano",
             "music_description": "Gentle piano for high-stress moments",
-            "music_file": "music/peaceful_piano.mp3",
+            "music_url": static("music/peaceful_piano.mp3"),
         }
 
     return {
         "music_type": "Study",
         "music_title": "Deep Focus",
         "music_description": "Steady background music for studying",
-        "music_file": "music/deep_focus.mp3",
+        "music_url": static("music/deep_focus.mp3"),
     }
 @login_required
 @require_POST
